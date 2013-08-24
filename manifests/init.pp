@@ -16,6 +16,10 @@
 # TODO: consider extracting very large sets of parameters into optional classes, then
 # building up a single large config file with the concat pattern.
 #
+# Virtual Host Overview
+# we want the web interface to display lists even when teh URL does not
+# match, which makes it easier to test web interfaces on several servers
+#
 # === Examples
 #
 #  class { mailman:
@@ -52,50 +56,50 @@ class mailman (
         $default_require_explicit_destination = 'True',
         $default_max_num_recipients = '10',
 
-	# we want the web interface to display lists even when teh URL does not
-	# match, which makes it easier to test web interfaces on several servers
 	$virtual_host_overview = 'True',
 
 	$smtp_max_rcpts = '500',
 
-	# FIXME: these variables MUST be reusable in teh puppet manifest, so the quoting needs to
-	# happen in the template, not here.
-	# Furthermore, the evaluation NEEDS to happen in the catalog compilation so that resolved
-	# paths can be used, so I cannot rely on Python os.path.join.
-	# Of course, it should still track mailman defaults as closely as possible.
-
-	$log_dir = "'/var/log/mailman'",
-	$lock_dir = "'/var/lock/mailman'",
-	$pid_dir = "'/var/run/mailman'",
-	$pid_file = "os.path.join(PID_DIR, 'master-qrunner.pid')",
-	$var_prefix = "/var/lib/mailman",
-	$data_dir = "os.path.join(VAR_PREFIX, 'data')",
-	#$list_data_dir = undef,
-
-	$private_archive_file_dir = "os.path.join(VAR_PREFIX, 'archives', 'private')",
-	$public_archives_file_dir = "os.path.join(VAR_PREFIX, 'archives', 'public')",
-
-	# Mailman assumes that queue_dir exists. It will fail if queue_dir is not writable.
-		# chown -R root:mailman /var/spool/mailman/qfiles/
-		# chmod -R g+w /var/spool/mailman/qfiles/
-	$queue_dir       = "'/var/spool/mailman'",
-	# TODO: this really needs to be moved into the template logic somehow
-	$inqueue_dir     = "os.path.join(QUEUE_DIR, 'in')",
-	$outqueue_dir    = "os.path.join(QUEUE_DIR, 'out')",
-	$cmdqueue_dir    = "os.path.join(QUEUE_DIR, 'commands')",
-	$bouncequeue_dir = "os.path.join(QUEUE_DIR, 'bounces')",
-	$newsqueue_dir   = "os.path.join(QUEUE_DIR, 'news')",
-	$archqueue_dir   = "os.path.join(QUEUE_DIR, 'archive')",
-	$shuntqueue_dir  = "os.path.join(QUEUE_DIR, 'shunt')",
-	$virginqueue_dir = "os.path.join(QUEUE_DIR, 'virgin')",
-	$badqueue_dir    = "os.path.join(QUEUE_DIR, 'bad')",
-	$retryqueue_dir  = "os.path.join(QUEUE_DIR, 'retry')",
-	$maildir_dir     = "os.path.join(QUEUE_DIR, 'maildir')",
+	$log_dir = '/var/log/mailman',
+	$lock_dir = '/var/lock/mailman',
+	$pid_dir = '/var/run/mailman',
+	$var_prefix = '/var/lib/mailman',
+	$queue_dir = "/var/spool/mailman",
 ) {
-	# TODO: any variables that depend on other variables need to be done in the body, not the param header
-	#if $list_data_dir == undef {
-		$list_data_dir = "${var_prefix}/lists4"
-	#}
+	# Originally I wanted to use native Python path joins exactly the same
+	# as is done in Defaults.py. However, it is useful to have all of the
+	# paths fully resolved in the Puppet manifest so they can be used with
+	# file resources. Still I try to track Defaults.py as closely as I can.
+
+	# Mailman service will fail if queue_dir is unwritable or doesn't exist.
+	file { $queue_dir:
+		ensure => directory,
+		owner  => 'mailman',
+		group  => 'mailman',
+		mode   => '2770',
+	}
+
+	# TODO: How can I make it simple to override these variables? If I include them
+	# in the paramater list, the default value can't depend on other parameters.
+	$pid_file = "${pid_dir}/master-qrunner.pid"
+	$data_dir = "${var_prefix}/data"
+	$list_data_dir = "${var_prefix}/lists4"
+
+	$private_archive_file_dir = "${var_prefix}/archives/private"
+	$public_archives_file_dir = "${var_prefix}/archives/public"
+
+        $inqueue_dir     = "${queue_dir}/in"
+        $outqueue_dir    = "${queue_dir}/out"
+        $cmdqueue_dir    = "${queue_dir}/commands"
+        $bouncequeue_dir = "${queue_dir}/bounces"
+        $newsqueue_dir   = "${queue_dir}/news"
+        $archqueue_dir   = "${queue_dir}/archive"
+        $shuntqueue_dir  = "${queue_dir}/shunt"
+        $virginqueue_dir = "${queue_dir}/virgin"
+        $badqueue_dir    = "${queue_dir}/bad"
+        $retryqueue_dir  = "${queue_dir}/retry"
+        $maildir_dir     = "${queue_dir}/maildir"
+
 
 	# TODO activate_qrunners is one of "stopped" or "running", kindof
 	# TODO booleans must be input as exactly True or False, and validated
