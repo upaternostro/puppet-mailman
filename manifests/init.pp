@@ -6,6 +6,12 @@
 #
 # TODO: maybe allow creator/adm passwords as class parameters?
 #
+# Don't bother using bin/check_perms on RedHat systems, it gives unnecessary
+# error messages. It was reported to RedHat bugzilla here:
+#  https://bugzilla.redhat.com/show_bug.cgi?id=838580 
+# And introduced on purpose here:
+#  https://bugzilla.redhat.com/show_bug.cgi?id=701539
+#
 # === Parameters
 # Try to keep defaults similar to Mailman defaults. Exceptions will be clearly noted.
 #

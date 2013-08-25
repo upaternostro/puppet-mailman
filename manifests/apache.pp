@@ -45,14 +45,20 @@ class mailman::apache (
 		ensure  => directory,
 		owner   => 'apache',
 		group   => 'apache',
-		mode    => '0555',
+		mode    => '2775',
 	}
 
 	file { $http_log_dir:
 		ensure  => directory,
 		owner   => 'apache',
 		group   => 'mailman',
-		mode    => '755',
+		mode    => '0755',
+		seltype => 'httpd_log_t',
+	} -> file { [ $custom_log, $error_log ]:
+		ensure  => present,
+		owner   => 'mailman',
+		group   => 'mailman',
+		mode    => '0664',
 		seltype => 'httpd_log_t',
 	}
 
