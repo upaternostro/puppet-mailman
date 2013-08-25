@@ -22,15 +22,15 @@
 #
 class mailman::options (
   $default_send_reminders               = true,
-  $default_archive_private              = '0',
-  $default_max_message_size             = '40', # in KB
+  $default_archive_private              = 0,
+  $default_max_message_size             = 40, # in KB
   $default_msg_footer                   = '""',
-  $default_subscribe_policy             = '1',
-  $default_private_roster               = '1',
-  $default_generic_nonmember_action     = '1',
+  $default_subscribe_policy             = 1,
+  $default_private_roster               = 1,
+  $default_generic_nonmember_action     = 1,
   $default_forward_auto_discards        = true,
   $default_require_explicit_destination = true,
-  $default_max_num_recipients           = '10',
+  $default_max_num_recipients           = 10,
 ) inherits mailman::params {
   validate_bool($default_send_reminders)
   validate_re($default_archive_private, [0,1])

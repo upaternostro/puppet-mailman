@@ -54,7 +54,7 @@ class mailman (
   $http_hostname         = $::hostname,
   $default_url_pattern   = 'http://%s/mailman/',
   $virtual_host_overview = false,
-  $smtp_max_rcpts        = '500',
+  $smtp_max_rcpts        = 500,
   $list_data_dir         = $mailman::params::list_data_dir,
   $log_dir               = $mailman::params::log_dir,
   $lock_dir              = $mailman::params::lock_dir,
