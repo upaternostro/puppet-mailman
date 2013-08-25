@@ -91,11 +91,8 @@ class mailman (
   $prefix          = $mailman::params::prefix
   $var_prefix      = $mailman::params::var_prefix
 
-  # Archive directories are shared with Apache module by extracting them
-  # into params. TODO: maybe pull them back out of params and have apache
-  # module refer to this class directly?
-  $private_archive_file_dir = $mailman::params::private_archive_file_dir
-  $public_archive_file_dir  = $mailman::params::public_archive_file_dir
+  $private_archive_file_dir = "${var_prefix}/archives/private"
+  $public_archive_file_dir  = "${var_prefix}/archives/public"
 
   # Since this variable is reused by Apache class, it needed a better name
   # than default_url_host.

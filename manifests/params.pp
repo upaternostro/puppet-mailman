@@ -34,9 +34,6 @@ class mailman::params (
   $template_dir    = "${prefix}/templates"
   $messages_dir    = "${prefix}/messages"
 
-  $private_archive_file_dir = "${var_prefix}/archives/private"
-  $public_archive_file_dir  = "${var_prefix}/archives/public"
-
   case $::osfamily {
     'RedHat': {
       $log_dir         = '/var/log/mailman'

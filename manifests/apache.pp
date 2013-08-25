@@ -29,7 +29,7 @@
 class mailman::apache {
   $prefix             = $mailman::params::prefix
   $log_dir            = $mailman::params::log_dir
-  $public_archive_dir = $mailman::params::public_archive_file_dir
+  $public_archive_dir = $mailman::public_archive_file_dir
 
   $vhost_file         = "/etc/httpd/conf.d/mailman.conf"
   $server_name        = $mailman::http_hostname
