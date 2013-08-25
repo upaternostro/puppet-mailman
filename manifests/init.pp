@@ -97,6 +97,7 @@ class mailman (
   $default_email_host  = $smtp_hostname
   $default_url_host    = $http_hostname
 
+  $admin_email = "${mailman_site_list}@${default_email_host}"
   $site_pw_hash = sha1($site_pw)
 
   package { 'mailman':
@@ -157,14 +158,14 @@ class mailman (
   # If the site list doesn't exist already, then it is created and the
   # password is immediately reset.
   exec { 'create_site_list':
-    command => "newlist --quiet '${mailman_site_list}' '${mailman_site_list}@${default_email_host}' 'CHANGEME'",
+    command => "newlist -q '${mailman_site_list}' '${admin_email}' 'CHANGEME'",
     path    => $bin_dir,
     creates => "${list_data_dir}/${mailman_site_list}/config.pck",
     require => [ File[$list_data_dir], Concat['mm_cfg'] ],
     notify  => Exec['change_site_list_pw'],
   }
   exec { 'change_site_list_pw':
-    command     => "change_pw -l '${mailman_site_list}'"
+    command     => "change_pw --quiet -l '${mailman_site_list}'"
     path        => $bin_dir,
     refreshonly => true,
   }
