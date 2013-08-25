@@ -29,6 +29,8 @@
 # [*virtual_host_overview*]
 #   We want the web interface to display lists even when teh URL does not
 #   match, which makes it easier to test web interfaces on several servers
+#   This is a deviation from the Mailman default of "true".
+#   This allows lists to show up, even if the wrong hostname is being used.
 #
 # === Examples
 #
@@ -51,7 +53,7 @@ class mailman (
   $smtp_hostname         = $::hostname,
   $http_hostname         = $::hostname,
   $default_url_pattern   = 'http://%s/mailman/',
-  $virtual_host_overview = true,
+  $virtual_host_overview = false,
   $smtp_max_rcpts        = '500',
   $list_data_dir         = $mailman::params::list_data_dir,
   $log_dir               = $mailman::params::log_dir,
