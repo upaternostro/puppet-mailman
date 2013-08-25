@@ -2,6 +2,14 @@
 #
 # Full description of class mailman here.
 #
+# This class is nice for setting defaults going forward, but it doesn't do
+# any good for cleaning up settings on old lists, like if a new domain
+# name is being used. So...
+#
+# TODO: write a class that dumps out the configuration of each list
+# into a file, maybe on a crontab, and brings the LIST configuration
+# in line with preferred current values.
+#
 # === Parameters
 #
 # [*virtual_host_overview*]
