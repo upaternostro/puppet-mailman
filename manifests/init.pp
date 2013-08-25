@@ -120,7 +120,6 @@ class mailman (
     target  => 'mm_cfg',
     order   => '00',
   }
-  include mailman::options
 
   # Create files with a SHA1 hash of the site_pw (basically a skeleton key)
   file { [$site_pw_file, $creator_pw_file]:
