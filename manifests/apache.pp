@@ -3,6 +3,7 @@
 # Full description of class mailman here.
 #
 # NOTE: Assumes that you are using name-based virtual hosting on your Apache server.
+# Creating a binding in port 80 without namevirtualhost will lead to overlaps
 # Suggest integration with logrotate too?
 #
 # TODO: maybe drop a blank favicon in there if nothing is there yet, just to stem the tide of 404 errors

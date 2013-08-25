@@ -30,6 +30,8 @@
 # Copyright 2013 Nic Waller, unless otherwise noted.
 #
 class mailman (
+	$site_pw,
+
 	$activate_qrunners = false,
 
 	$default_email_host = 'localhost.localdomain',
@@ -118,6 +120,18 @@ class mailman (
 
 	# TODO: How can I make it simple to override these variables? If I include them
 	# in the paramater list, the default value can't depend on other parameters.
+	$site_pw_file = "${config_dir}/adm.pw"
+	$listcreator_pw_file = "${config_dir}/creator.pw"
+
+	$pwhash = sha1($site_pw)
+	file { [$site_pw_file, $listcreator_pw_file]:
+		ensure  => present,
+		content => "$pwhash\n",
+		owner   => 'root',
+		group   => 'mailman',
+		mode    => '0644',
+	}
+
 	$pid_file = "${pid_dir}/master-qrunner.pid"
 	$data_dir = "${var_prefix}/data"
 
