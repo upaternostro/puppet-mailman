@@ -1,25 +1,18 @@
 # == Class: mailman
 #
-# Full description of class mailman here.
+# This class sets up a minimal Mailman environment, but does not provide any
+# integration with mail transfer agents or web servers. Typically you would
+# also want to use mailman::postfix and mailman::apache.
 #
-# This sets up a minimal Mailman runtime environment.
-# This class does not integrate with Apache or Postfix. You can either use the included helper modules, or do it yourself.
-# To integrate with Apache or Postfix, use the additional included modules.
-# Also you can use the options module to configure nonessential parameters that don't affect the runtime environment.
-# Basically just preferences.
+# It is assumed that the operating system provides Mailman packages, and that
+# the compiled version is >= 2.1.5. The paths used by Mailman became compliant
+# with the Filesystem Hierarchy Standard in 2.1.5.
 #
-# Designed to work with Mailman >= 2.1.5, mostly because of where files are located.
-#
-# TODO: maybe allow creator/adm passwords as class parameters?
-#
-# Don't bother using bin/check_perms on RedHat systems, it gives unnecessary
-# error messages. It was reported to RedHat bugzilla here:
-#  https://bugzilla.redhat.com/show_bug.cgi?id=838580 
-# And introduced on purpose here:
+# NOTE: Don't bother using the "check_perms" binary on RedHat systems. The
+# RedHat packages have intentionally customized permissions for security.
 #  https://bugzilla.redhat.com/show_bug.cgi?id=701539
 #
 # === Parameters
-# Try to keep defaults similar to Mailman defaults. Exceptions will be clearly noted.
 #
 # [*MTA*]
 #   The MTA param names a module in the Mailman/MTA dir which contains the mail
@@ -48,6 +41,9 @@ class mailman (
 	$language = 'en',
 	$mailman_site_list = 'mailman',
 	$mta = 'Manual',
+	$smtp_hostname       = $hostname,
+	$http_hostname       = $hostname,
+        $default_url_pattern = 'http://%s/mailman/',
 
 	$list_data_dir   = $mailman::params::list_data_dir,
 	$log_dir         = $mailman::params::log_dir,
@@ -65,10 +61,6 @@ class mailman (
 	$pid_file        = $mailman::params::pid_file,
 	$site_pw_file    = $mailman::params::site_pw_file,
 	$creator_pw_file = $mailman::params::creator_pw_file,
-
-        $default_email_host  = $mailman::params::default_email_host,
-        $default_url_host    = $mailman::params::default_url_host,
-        $default_url_pattern = $mailman::params::default_url_pattern,
 
         $virtual_host_overview                = true,
         $smtp_max_rcpts                       = '500',
@@ -89,6 +81,9 @@ class mailman (
 
 	$private_archive_file_dir = $mailman::params::private_archive_file_dir
 	$public_archive_file_dir  = $mailman::params::public_archive_file_dir
+
+        $default_email_host  = $smtp_hostname
+        $default_url_host    = $http_hostname
 
 	# Originally I wanted to use native Python path joins exactly the same
 	# as is done in Defaults.py. However, it is useful to have all of the

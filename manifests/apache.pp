@@ -27,14 +27,12 @@
 # Copyright 2013 Nic Waller, unless otherwise noted.
 #
 class mailman::apache {
-	$default_url_host   = $mailman::params::default_url_host
-	$default_email_host = $mailman::params::default_email_host
 	$prefix             = $mailman::params::prefix
 	$log_dir            = $mailman::params::log_dir
 	$public_archive_dir = $mailman::params::public_archive_file_dir
 
         $vhost_file         = "/etc/httpd/conf.d/mailman.conf"
-        $server_name        = $default_url_host
+        $server_name        = $mailman::http_hostname
         $server_admin       = "mailman@${default_email_host}"
         $document_root      = '/var/www/html/mailman'
         $mailman_cgi_dir    = "${prefix}/cgi-bin"

@@ -25,10 +25,6 @@ class mailman::params (
 	$exec_prefix     = $prefix,
 	$var_prefix      = '/var/lib/mailman',
 ) {
-	$default_email_host  = $hostname
-	$default_url_host    = $hostname
-	$default_url_pattern = 'http://%s/mailman/'
-
 	$list_data_dir   = "${var_prefix}/lists"
 	$data_dir        = "${var_prefix}/data"
 	$spam_dir        = "${var_prefix}/spam"
@@ -43,18 +39,17 @@ class mailman::params (
 
 	case $::osfamily {
 		'RedHat': {
-			$log_dir      = '/var/log/mailman'
-			$lock_dir     = '/var/lock/mailman'
-			$config_dir   = '/etc/mailman'
-			$pid_dir      = '/var/run/mailman'
-			$queue_dir    = '/var/spool/mailman'
+			$log_dir         = '/var/log/mailman'
+			$lock_dir        = '/var/lock/mailman'
+			$config_dir      = '/etc/mailman'
+			$site_pw_file    = "${config_dir}/adm.pw"
+			$creator_pw_file = "${config_dir}/creator.pw"
+			$pid_dir         = '/var/run/mailman'
+			$pid_file        = "${pid_dir}/master-qrunner.pid"
+			$queue_dir       = '/var/spool/mailman'
 		}
 		default: {
 			fail("The ${module_name} module is not supported on an ${::osfamily} based system.")
 		}
 	}
-
-	$pid_file        = "${pid_dir}/master-qrunner.pid"
-	$site_pw_file    = "${config_dir}/adm.pw"
-	$creator_pw_file = "${config_dir}/creator.pw"
 }
