@@ -114,6 +114,7 @@ class mailman (
     group   => 'mailman',
     mode    => '0644',
     require => Package['mailman'],
+    notify  => Service['mailman'],
   }
   concat::fragment { 'mm_cfg_top':
     content => template("${module_name}/mm_cfg.py.erb"),
@@ -133,7 +134,7 @@ class mailman (
   }
 
   # Need to ensure that queue_dir exists, in case a custom valid is provided.
-  file { $queue_dir:
+  file { [$queue_dir, $log_dir]:
     ensure  => directory,
     owner   => 'mailman',
     group   => 'mailman',
