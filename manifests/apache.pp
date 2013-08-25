@@ -36,7 +36,7 @@ class mailman::apache {
 
   $vhost_file         = "/etc/httpd/conf.d/mailman.conf"
   $server_name        = $mailman::http_hostname
-  $server_admin       = "mailman@${default_email_host}"
+  $server_admin       = "mailman@${mailman::smtp_hostname}"
   $document_root      = '/var/www/html/mailman'
   $mailman_cgi_dir    = "${prefix}/cgi-bin"
   $mailman_icons_dir  = "${prefix}/icons"
