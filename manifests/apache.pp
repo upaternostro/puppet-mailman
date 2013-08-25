@@ -6,6 +6,8 @@
 # Creating a binding in port 80 without namevirtualhost will lead to overlaps
 # Suggest integration with logrotate too?
 #
+# Also assumes that you aren't managing Apache with a different Puppet class.
+#
 # === Parameters
 #
 # [*MTA*]
@@ -38,6 +40,8 @@ class mailman::apache {
   $custom_log         = "${log_dir}/apache_access_log"
   $error_log          = "${log_dir}/apache_error_log"
   $favicon            = "${document_root}/favicon.ico"
+  # TODO make this work on Debian systems too
+  $httpd_service      = 'httpd'
 
   file { $document_root:
     ensure  => directory,
@@ -67,7 +71,11 @@ class mailman::apache {
     owner   => 'root',
     group   => 'mailman',
     mode    => '0644',
+    notify  => Service[$httpd_service],
   }
 
-  # TODO: would be nice to make apache reload after changing all this. but intermodule deps are sticky. any way to do that other than exec?
+  service { $httpd_service:
+    ensure    => running,
+    enable    => true,
+  }
 }
