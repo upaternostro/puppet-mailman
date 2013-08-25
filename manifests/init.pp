@@ -67,6 +67,7 @@ class mailman (
   $template_dir          = $mailman::params::template_dir,
   $messages_dir          = $mailman::params::messages_dir,
   $queue_dir             = $mailman::params::queue_dir,
+  $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
   $site_pw_file          = $mailman::params::site_pw_file,
   $creator_pw_file       = $mailman::params::creator_pw_file,
@@ -90,8 +91,8 @@ class mailman (
   $prefix          = $mailman::params::prefix
   $var_prefix      = $mailman::params::var_prefix
 
-  $private_archive_file_dir = "${var_prefix}/archives/private"
-  $public_archive_file_dir  = "${var_prefix}/archives/public"
+  $private_archive_file_dir = "${archive_dir}/private"
+  $public_archive_file_dir  = "${archive_dir}/public"
 
   # Since this variable is reused by Apache class, it needed a better name
   # than default_url_host.
@@ -154,6 +155,30 @@ class mailman (
     mode    => '2775',
     require => File[$var_prefix],
   }
+  file { $archive_dir:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'mailman',
+    mode    => '2775',
+    seltype => 'mailman_archive_t',
+  }
+  file { $private_archive_file_dir:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'mailman',
+    mode    => '2771',
+    seltype => 'mailman_archive_t',
+    require => File[$archive_dir],
+  }
+  file { $public_archive_file_dir:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'mailman',
+    mode    => '2775',
+    seltype => 'mailman_archive_t',
+    require => File[$archive_dir],
+  }
+
   # TODO: maybe need to create other directories too?
 
   # If the site list doesn't exist already, then it is created and the

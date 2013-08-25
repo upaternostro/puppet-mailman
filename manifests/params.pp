@@ -33,6 +33,8 @@ class mailman::params (
   $scripts_dir     = "${prefix}/scripts"
   $template_dir    = "${prefix}/templates"
   $messages_dir    = "${prefix}/messages"
+  # archive_dir is not a real Mailman param, it's just useful in this module
+  $archive_dir    = "${var_prefix}/archives"
 
   case $::osfamily {
     'RedHat': {
