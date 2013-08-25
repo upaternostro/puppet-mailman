@@ -16,8 +16,8 @@ ScriptAlias /mailman/ <%= @mailman_cgi_dir %>/
     Allow from all
 </Directory>
 
-Alias /pipermail/ <%= @public_archives_dir %>/
-<Directory <%= @public_archives_dir %>>
+Alias /pipermail/ <%= @public_archive_dir %>/
+<Directory <%= @public_archive_dir %>>
     Options Indexes MultiViews FollowSymLinks
     AllowOverride None
     Order allow,deny

@@ -26,20 +26,21 @@
 #
 # Copyright 2013 Nic Waller, unless otherwise noted.
 #
-class mailman::apache (
-	$vhost_file = '/etc/httpd/conf.d/mailman.conf',
-	$mailman_cgi_dir = '/usr/lib/mailman/cgi-bin',
-	$mailman_icons_dir = '/usr/lib/mailman/icons',
+class mailman::apache {
+	$default_url_host   = $mailman::params::default_url_host
+	$default_email_host = $mailman::params::default_email_host
+	$prefix             = $mailman::params::prefix
+	$log_dir            = $mailman::params::log_dir
+	$public_archive_dir = '/var/lib/mailman/archives/public'
 
-	$server_name   = 'localhost',
-	$server_admin  = 'postmaster@lists.nicwaller.com',
-	$document_root = '/var/www/html/mailman',
-	$http_log_dir  = '/var/log/mailman/www',
-
-	$public_archives_dir = '/var/lib/mailman/archives/public',
-) {
-	$custom_log    = "${http_log_dir}/access_log"
-	$error_log     = "${http_log_dir}/error_log"
+        $vhost_file         = "/etc/httpd/conf.d/mailman.conf"
+        $server_name        = $default_url_host
+        $server_admin       = "mailman@${default_email_host}"
+        $document_root      = '/var/www/html/mailman'
+        $mailman_cgi_dir    = "${prefix}/cgi-bin"
+        $mailman_icons_dir  = "${prefix}/icons"
+        $custom_log         = "${log_dir}/apache_access_log"
+        $error_log          = "${log_dir}/apache_error_log"
 
 	file { $document_root:
 		ensure  => directory,
@@ -48,13 +49,7 @@ class mailman::apache (
 		mode    => '2775',
 	}
 
-	file { $http_log_dir:
-		ensure  => directory,
-		owner   => 'apache',
-		group   => 'mailman',
-		mode    => '0755',
-		seltype => 'httpd_log_t',
-	} -> file { [ $custom_log, $error_log ]:
+	file { [ $custom_log, $error_log ]:
 		ensure  => present,
 		owner   => 'mailman',
 		group   => 'mailman',

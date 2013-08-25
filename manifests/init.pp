@@ -37,17 +37,14 @@
 #
 class mailman (
 	$site_pw,
-
 	$activate_qrunners = false,
-
-	$default_email_host = 'localhost.localdomain',
-	$default_url_host = 'localhost.localdomain',
-	$default_url_pattern = 'http://%s/mailman/',
 
 	$language = 'en',
 	$mailman_site_list = 'mailman',
 	$mta = 'Manual',
-
+	$default_email_host  = $mailman::params::default_email_host,
+	$default_url_host    = $mailman::params::default_url_host,
+	$default_url_pattern = $mailman::params::default_url_pattern,
         $default_send_reminders = true,
         $default_archive_private = '0',
         $default_max_message_size = '40', # in KB
@@ -58,18 +55,26 @@ class mailman (
         $default_forward_auto_discards = true,
         $default_require_explicit_destination = true,
         $default_max_num_recipients = '10',
-
 	$virtual_host_overview = true,
-
 	$smtp_max_rcpts = '500',
 
-	$prefix = '/usr/lib/mailman',
-	$log_dir = '/var/log/mailman',
-	$lock_dir = '/var/lock/mailman',
-	$pid_dir = '/var/run/mailman',
-	$var_prefix = '/var/lib/mailman',
-	$queue_dir = '/var/spool/mailman',
-) {
+	$list_data_dir   = $mailman::params::list_data_dir,
+	$log_dir         = $mailman::params::log_dir,
+	$lock_dir        = $mailman::params::lock_dir,
+	$config_dir      = $mailman::params::config_dir,
+	$data_dir        = $mailman::params::data_dir,
+	$pid_dir         = $mailman::params::pid_dir,
+	$spam_dir        = $mailman::params::spam_dir,
+	$wrapper_dir     = $mailman::params::wrapper_dir,
+	$bin_dir         = $mailman::params::bin_dir,
+	$scripts_dir     = $mailman::params::scripts_dir,
+	$template_dir    = $mailman::params::template_dir,
+	$messages_dir    = $mailman::params::messages_dir,
+	$queue_dir       = $mailman::params::queue_dir,
+	$pid_file        = $mailman::params::pid_file,
+	$site_pw_file    = $mailman::params::site_pw_file,
+	$creator_pw_file = $mailman::params::creator_pw_file,
+) inherits mailman::params {
 	$langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
 		'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',
 		'ru','sk','sl','sr','sv','tr','uk','vi','zh_CN','zh_TW']
@@ -92,57 +97,9 @@ class mailman (
 
 	include mailman::apache
 
-	$exec_prefix = $prefix
-	$config_dir = '/etc/mailman'
-	$spam_dir = "${var_prefix}/spam"
-	$wrapper_dir = "${exec_prefix}/mail"
-	$bin_dir = "${prefix}/bin"
-	$scripts_dir = "${prefix}/scripts"
-	$template_dir = "${prefix}/templates"
-	$messages_dir = "${prefix}/messages"
-
-	# Originally I wanted to use native Python path joins exactly the same
-	# as is done in Defaults.py. However, it is useful to have all of the
-	# paths fully resolved in the Puppet manifest so they can be used with
-	# file resources. Still I try to track Defaults.py as closely as I can.
-
-	# Mailman service will fail if queue_dir is unwritable or doesn't exist.
-	file { $queue_dir:
-		ensure => directory,
-		owner  => 'mailman',
-		group  => 'mailman',
-		mode   => '2770',
-	}
-
-	$list_data_dir = "${var_prefix}/lists"
-
-	# Mailman does not automatically create the list data dir
-	file { $list_data_dir:
-		ensure => directory,
-		owner  => 'root',
-		group  => 'mailman',
-		mode   => '2775',
-	}
-
-	# TODO: How can I make it simple to override these variables? If I include them
-	# in the paramater list, the default value can't depend on other parameters.
-	$site_pw_file = "${config_dir}/adm.pw"
-	$listcreator_pw_file = "${config_dir}/creator.pw"
-
-	$pwhash = sha1($site_pw)
-	file { [$site_pw_file, $listcreator_pw_file]:
-		ensure  => present,
-		content => "$pwhash\n",
-		owner   => 'root',
-		group   => 'mailman',
-		mode    => '0644',
-	}
-
-	$pid_file = "${pid_dir}/master-qrunner.pid"
-	$data_dir = "${var_prefix}/data"
-
-	$private_archive_file_dir = "${var_prefix}/archives/private"
-	$public_archives_file_dir = "${var_prefix}/archives/public"
+	$prefix          = $mailman::params::prefix
+	$exec_prefix     = $mailman::params::exec_prefix
+	$var_prefix      = $mailman::params::var_prefix
 
         $inqueue_dir     = "${queue_dir}/in"
         $outqueue_dir    = "${queue_dir}/out"
@@ -155,6 +112,40 @@ class mailman (
         $badqueue_dir    = "${queue_dir}/bad"
         $retryqueue_dir  = "${queue_dir}/retry"
         $maildir_dir     = "${queue_dir}/maildir"
+
+	$private_archive_file_dir = "${var_prefix}/archives/private"
+	$public_archive_file_dir  = "${var_prefix}/archives/public"
+
+	# Originally I wanted to use native Python path joins exactly the same
+	# as is done in Defaults.py. However, it is useful to have all of the
+	# paths fully resolved in the Puppet manifest so they can be used with
+	# file resources. Still, I try to track Defaults.py wherever possible.
+
+	# Mailman service will fail if queue_dir is unwritable or doesn't exist.
+	file { $queue_dir:
+		ensure => directory,
+		owner  => 'mailman',
+		group  => 'mailman',
+		mode   => '2770',
+	}
+
+	# Mailman does not automatically create the list data dir
+	file { $list_data_dir:
+		ensure => directory,
+		owner  => 'root',
+		group  => 'mailman',
+		mode   => '2775',
+	}
+
+	$site_pw_hash = sha1($site_pw)
+	file { [$site_pw_file, $creator_pw_file]:
+		ensure  => present,
+		content => "$site_pw_hash\n",
+		owner   => 'root',
+		group   => 'mailman',
+		mode    => '0644',
+	}
+
 
 	# TODO: is there a simpler way to generate a decent password?
 	# TODO: avoid generating a password every time?
