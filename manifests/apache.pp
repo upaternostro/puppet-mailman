@@ -6,8 +6,6 @@
 # Creating a binding in port 80 without namevirtualhost will lead to overlaps
 # Suggest integration with logrotate too?
 #
-# TODO: maybe drop a blank favicon in there if nothing is there yet, just to stem the tide of 404 errors
-#
 # === Parameters
 #
 # [*MTA*]
@@ -39,12 +37,20 @@ class mailman::apache {
   $mailman_icons_dir  = "${prefix}/icons"
   $custom_log         = "${log_dir}/apache_access_log"
   $error_log          = "${log_dir}/apache_error_log"
+  $favicon            = "${document_root}/favicon.ico"
 
   file { $document_root:
     ensure  => directory,
     owner   => 'apache',
     group   => 'apache',
     mode    => '2775',
+  }
+  # Mailman does include a favicon in the HTML META section, but some silly
+  # browsers still look for favicon.ico. Create a blank one to reduce 404's.
+  exec { 'ensure_favicon':
+    command => "touch ${favicon}",
+    path    => '/bin',
+    creates => $favicon,
   }
 
   file { [ $custom_log, $error_log ]:
