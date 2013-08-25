@@ -2,9 +2,9 @@
 #
 # Full description of class mailman here.
 #
-# TODO: allow uninstallation with "ensure => absnet"
-#
 # Designed to work with Mailman >= 2.1.5, mostly because of where files are located.
+#
+# TODO: maybe allow creator/adm passwords as class parameters?
 #
 # === Parameters
 # Try to keep defaults similar to Mailman defaults. Exceptions will be clearly noted.
@@ -13,14 +13,9 @@
 #   The MTA param names a module in the Mailman/MTA dir which contains the mail
 #   server-specific functions to be executed when a list is created or removed.
 #
-# TODO: maybe allow creator/adm passwords as class parameters?
-#
-# TODO: consider extracting very large sets of parameters into optional classes, then
-# building up a single large config file with the concat pattern.
-#
-# Virtual Host Overview
-# we want the web interface to display lists even when teh URL does not
-# match, which makes it easier to test web interfaces on several servers
+# [*virtual_host_overview*]
+#   We want the web interface to display lists even when teh URL does not
+#   match, which makes it easier to test web interfaces on several servers
 #
 # === Examples
 #
@@ -43,7 +38,7 @@ class mailman (
 
 	$language = 'en',
 	$mailman_site_list = 'mailman',
-	$mta = 'manual',
+	$mta = 'Manual',
 
         $default_send_reminders = true,
         $default_archive_private = '0',
@@ -73,7 +68,7 @@ class mailman (
 	validate_bool($activate_qrunners)
 	validate_re($language, $langs)
 	validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
-	validate_re($mta, ['manual', 'postfix'])
+	validate_re($mta, ['Manual', 'Postfix'])
 	validate_bool($default_send_reminders)
 	validate_re($default_archive_private, [0,1])
 	validate_re($default_max_message_size, '[0-9]*')
@@ -86,6 +81,8 @@ class mailman (
 	validate_re($default_max_num_recipients, '[0-9]*')
 	validate_bool($virtual_host_overview)
 	validate_re($smtp_max_rcpts, '[0-9]*')
+
+	include mailman::apache
 
 	$exec_prefix = $prefix
 	$config_dir = '/etc/mailman'
@@ -109,11 +106,20 @@ class mailman (
 		mode   => '2770',
 	}
 
+	$list_data_dir = "${var_prefix}/lists"
+
+	# Mailman does not automatically create the list data dir
+	file { $list_data_dir:
+		ensure => directory,
+		owner  => 'root',
+		group  => 'mailman',
+		mode   => '2775',
+	}
+
 	# TODO: How can I make it simple to override these variables? If I include them
 	# in the paramater list, the default value can't depend on other parameters.
 	$pid_file = "${pid_dir}/master-qrunner.pid"
 	$data_dir = "${var_prefix}/data"
-	$list_data_dir = "${var_prefix}/lists4"
 
 	$private_archive_file_dir = "${var_prefix}/archives/private"
 	$public_archives_file_dir = "${var_prefix}/archives/public"
@@ -144,6 +150,7 @@ class mailman (
 		command => "newlist --quiet '${mailman_site_list}' '${mailman_site_list}@${default_email_host}' '${site_list_pw}'",
 		path    => $bin_dir,
 		creates => "${list_data_dir}/${mailman_site_list}/config.pck",
+		require => File[$list_data_dir],
 	} -> service { 'mailman':
 		ensure  => $activate_qrunners,
 		enable  => $activate_qrunners,

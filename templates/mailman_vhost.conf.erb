@@ -1,0 +1,34 @@
+# httpd configuration settings for use with mailman.
+# WARNING: this file is managed by Puppet.
+
+<VirtualHost *:80>
+ServerName   <%= @server_name %>
+ServerAdmin  <%= @server_admin %>
+DocumentRoot <%= @document_root %>
+CustomLog    <%= @custom_log %> common
+ErrorLog     <%= @error_log %>
+
+ScriptAlias /mailman/ <%= @mailman_cgi_dir %>/
+<Directory <%= @mailman_cgi_dir %>>
+    AllowOverride None
+    Options ExecCGI
+    Order allow,deny
+    Allow from all
+</Directory>
+
+Alias /pipermail/ <%= @public_archives_dir %>/
+<Directory <%= @public_archives_dir %>>
+    Options Indexes MultiViews FollowSymLinks
+    AllowOverride None
+    Order allow,deny
+    Allow from all
+    AddDefaultCharset Off
+</Directory>
+
+# Redirect queries from /mailman to the listinfo page (recommended).
+RedirectMatch ^/mailman[/]*$ /mailman/listinfo
+
+# Redirect the root index page to listinfo (custom for this module)
+RedirectMatch ^/?$ /mailman/listinfo
+
+</VirtualHost>
