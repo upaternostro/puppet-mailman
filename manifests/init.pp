@@ -79,6 +79,9 @@ class mailman (
   validate_re($language, $langs)
   validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
   validate_re($mta, ['Manual', 'Postfix'])
+  # Mailman insists that the mail domain MUST have 2 or more parts
+  validate_re($smtp_hostname, "^[-a-zA-Z0-9]+\.[-a-zA-Z0-9\.]+$")
+  validate_re($http_hostname, "^[-a-zA-Z0-9\.]+$")
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
 
