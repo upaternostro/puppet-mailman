@@ -165,7 +165,7 @@ class mailman (
     notify  => Exec['change_site_list_pw'],
   }
   exec { 'change_site_list_pw':
-    command     => "change_pw --quiet -l '${mailman_site_list}'"
+    command     => "change_pw --quiet -l '${mailman_site_list}'",
     path        => $bin_dir,
     refreshonly => true,
   }
