@@ -29,7 +29,6 @@ class mailman::params (
 	$default_url_host    = $hostname
 	$default_url_pattern = 'http://%s/mailman/'
 
-
 	$list_data_dir   = "${var_prefix}/lists"
 	$data_dir        = "${var_prefix}/data"
 	$spam_dir        = "${var_prefix}/spam"
@@ -38,6 +37,9 @@ class mailman::params (
 	$scripts_dir     = "${prefix}/scripts"
 	$template_dir    = "${prefix}/templates"
 	$messages_dir    = "${prefix}/messages"
+
+        $private_archive_file_dir = "${var_prefix}/archives/private"
+        $public_archive_file_dir  = "${var_prefix}/archives/public"
 
 	case $::osfamily {
 		'RedHat': {

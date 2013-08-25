@@ -31,7 +31,7 @@ class mailman::apache {
 	$default_email_host = $mailman::params::default_email_host
 	$prefix             = $mailman::params::prefix
 	$log_dir            = $mailman::params::log_dir
-	$public_archive_dir = '/var/lib/mailman/archives/public'
+	$public_archive_dir = $mailman::params::public_archive_file_dir
 
         $vhost_file         = "/etc/httpd/conf.d/mailman.conf"
         $server_name        = $default_url_host

@@ -101,6 +101,9 @@ class mailman (
 	$exec_prefix     = $mailman::params::exec_prefix
 	$var_prefix      = $mailman::params::var_prefix
 
+	$private_archive_file_dir = $mailman::params::private_archive_file_dir
+	$public_archive_file_dir  = $mailman::params::public_archive_file_dir
+
         $inqueue_dir     = "${queue_dir}/in"
         $outqueue_dir    = "${queue_dir}/out"
         $cmdqueue_dir    = "${queue_dir}/commands"
@@ -113,8 +116,6 @@ class mailman (
         $retryqueue_dir  = "${queue_dir}/retry"
         $maildir_dir     = "${queue_dir}/maildir"
 
-	$private_archive_file_dir = "${var_prefix}/archives/private"
-	$public_archive_file_dir  = "${var_prefix}/archives/public"
 
 	# Originally I wanted to use native Python path joins exactly the same
 	# as is done in Defaults.py. However, it is useful to have all of the
