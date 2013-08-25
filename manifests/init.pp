@@ -19,6 +19,9 @@
 # paths fully resolved in the Puppet manifest so they can be used with
 # file resources. Still, I try to track Defaults.py wherever possible.
 #
+# Caution: If you use Mailman on more than one server, be careful to
+# only enable the Mailman service (qrunners) on ONE server.
+#
 # [*MTA*]
 #   The MTA param names a module in the Mailman/MTA dir which contains the mail
 #   server-specific functions to be executed when a list is created or removed.
@@ -40,40 +43,37 @@
 # Copyright 2013 Nic Waller, unless otherwise noted.
 #
 class mailman (
-  $site_pw,
-  $activate_qrunners = false,
-
-  $language            = 'en',
-  $mailman_site_list   = 'mailman',
-  $mta                 = 'Manual',
-  $smtp_hostname       = $hostname,
-  $http_hostname       = $hostname,
-  $default_url_pattern = 'http://%s/mailman/',
-
-  $list_data_dir   = $mailman::params::list_data_dir,
-  $log_dir         = $mailman::params::log_dir,
-  $lock_dir        = $mailman::params::lock_dir,
-  $config_dir      = $mailman::params::config_dir,
-  $data_dir        = $mailman::params::data_dir,
-  $pid_dir         = $mailman::params::pid_dir,
-  $spam_dir        = $mailman::params::spam_dir,
-  $wrapper_dir     = $mailman::params::wrapper_dir,
-  $bin_dir         = $mailman::params::bin_dir,
-  $scripts_dir     = $mailman::params::scripts_dir,
-  $template_dir    = $mailman::params::template_dir,
-  $messages_dir    = $mailman::params::messages_dir,
-  $queue_dir       = $mailman::params::queue_dir,
-  $pid_file        = $mailman::params::pid_file,
-  $site_pw_file    = $mailman::params::site_pw_file,
-  $creator_pw_file = $mailman::params::creator_pw_file,
-
+  $enable_service        = false,
+  $site_pw               = 'CHANGEME',
+  $language              = 'en',
+  $mailman_site_list     = 'mailman',
+  $mta                   = 'Manual',
+  $smtp_hostname         = $hostname,
+  $http_hostname         = $hostname,
+  $default_url_pattern   = 'http://%s/mailman/',
   $virtual_host_overview = true,
   $smtp_max_rcpts        = '500',
+  $list_data_dir         = $mailman::params::list_data_dir,
+  $log_dir               = $mailman::params::log_dir,
+  $lock_dir              = $mailman::params::lock_dir,
+  $config_dir            = $mailman::params::config_dir,
+  $data_dir              = $mailman::params::data_dir,
+  $pid_dir               = $mailman::params::pid_dir,
+  $spam_dir              = $mailman::params::spam_dir,
+  $wrapper_dir           = $mailman::params::wrapper_dir,
+  $bin_dir               = $mailman::params::bin_dir,
+  $scripts_dir           = $mailman::params::scripts_dir,
+  $template_dir          = $mailman::params::template_dir,
+  $messages_dir          = $mailman::params::messages_dir,
+  $queue_dir             = $mailman::params::queue_dir,
+  $pid_file              = $mailman::params::pid_file,
+  $site_pw_file          = $mailman::params::site_pw_file,
+  $creator_pw_file       = $mailman::params::creator_pw_file,
 ) inherits mailman::params {
   $langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
     'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',
     'ru','sk','sl','sr','sv','tr','uk','vi','zh_CN','zh_TW']
-  validate_bool($activate_qrunners)
+  validate_bool($enable_service)
   validate_re($language, $langs)
   validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
   validate_re($mta, ['Manual', 'Postfix'])
@@ -171,8 +171,8 @@ class mailman (
   }
 
   service { 'mailman':
-    ensure  => $activate_qrunners,
-    enable  => $activate_qrunners,
+    ensure  => $enable_service,
+    enable  => $enable_service,
     require => Exec['create_site_list'],
   }
 }
