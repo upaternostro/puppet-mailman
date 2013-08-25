@@ -8,6 +8,9 @@
 #
 # Also assumes that you aren't managing Apache with a different Puppet class.
 #
+# Note: httpd is installed as a pre-req for Mailman on RedHat systems, so
+# we can assume that httpd service is available.
+#
 # === Parameters
 #
 # [*MTA*]
