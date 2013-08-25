@@ -58,7 +58,6 @@ class mailman (
   $list_data_dir         = $mailman::params::list_data_dir,
   $log_dir               = $mailman::params::log_dir,
   $lock_dir              = $mailman::params::lock_dir,
-  $config_dir            = $mailman::params::config_dir,
   $data_dir              = $mailman::params::data_dir,
   $pid_dir               = $mailman::params::pid_dir,
   $spam_dir              = $mailman::params::spam_dir,
@@ -134,7 +133,7 @@ class mailman (
   }
 
   # Need to ensure that queue_dir exists, in case a custom valid is provided.
-  file { [$queue_dir, $log_dir]:
+  file { [$queue_dir, $log_dir, $lock_dir]:
     ensure  => directory,
     owner   => 'mailman',
     group   => 'mailman',
