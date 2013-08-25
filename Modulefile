@@ -9,3 +9,4 @@ project_page 'https://github.com/nicwaller/puppet-mailman'
 
 ## Add dependencies, if any:
 dependency 'puppetlabs/stdlib'
+dependency 'ripienaar/concat'

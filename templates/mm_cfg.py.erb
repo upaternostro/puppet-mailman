@@ -101,23 +101,8 @@ add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
 false = False
 true  = True
 
-LANGUAGE = '<%= @language %>'
-MTA      = '<%= @mta %>'
-
-DEFAULT_SEND_REMINDERS               = <%= @default_send_reminders %>
-DEFAULT_ARCHIVE_PRIVATE              = <%= @default_archive_private %>
-DEFAULT_MAX_MESSAGE_SIZE             = <%= @default_max_message_size %>
-DEFAULT_MSG_FOOTER                   = <%= @default_msg_footer %>
-DEFAULT_SUBSCRIBE_POLICY             = <%= @default_subscribe_policy %>
-DEFAULT_PRIVATE_ROSTER               = <%= @default_private_roster %>
-DEFAULT_GENERIC_NONMEMBER_ACTION     = <%= @default_generic_nonmember_action %>
-DEFAULT_FORWARD_AUTO_DISCARDS        = <%= @default_forward_auto_discards %>
-DEFAULT_MAX_NUM_RECIPIENTS           = <%= @default_max_num_recipients %>
-DEFAULT_REQUIRE_EXPLICIT_DESTINATION = <%= @default_require_explicit_destination %>
-
-VIRTUAL_HOST_OVERVIEW = <%= @virtual_host_overview %>
-
-SMTP_MAX_RCPTS = <%= @smtp_max_rcpts %>
+LANGUAGE      = '<%= @language %>'
+MTA           = '<%= @mta %>'
 
 LOG_DIR       = '<%= @log_dir %>'
 LOCK_DIR      = '<%= @lock_dir %>'
@@ -134,14 +119,18 @@ PRIVATE_ARCHIVE_FILE_DIR = '<%= @private_archive_file_dir %>'
 PUBLIC_ARCHIVE_FILE_DIR = '<%= @public_archive_file_dir %>'
 
 QUEUE_DIR       = '<%= @queue_dir %>'
-INQUEUE_DIR     = '<%= @inqueue_dir %>'
-OUTQUEUE_DIR    = '<%= @outqueue_dir %>'
-CMDQUEUE_DIR    = '<%= @cmdqueue_dir %>'
-BOUNCEQUEUE_DIR = '<%= @bouncequeue_dir %>'
-NEWSQUEUE_DIR   = '<%= @newsqueue_dir %>'
-ARCHQUEUE_DIR   = '<%= @archqueue_dir %>'
-SHUNTQUEUE_DIR  = '<%= @shuntqueue_dir %>'
-VIRGINQUEUE_DIR = '<%= @virginqueue_dir %>'
-BADQUEUE_DIR    = '<%= @badqueue_dir %>'
-RETRYQUEUE_DIR  = '<%= @retryqueue_dir %>'
-MAILDIR_DIR     = '<%= @maildir_dir %>'
+INQUEUE_DIR     = '<%= @queue_dir %>/in'
+OUTQUEUE_DIR    = '<%= @queue_dir %>/out'
+CMDQUEUE_DIR    = '<%= @queue_dir %>/commands'
+BOUNCEQUEUE_DIR = '<%= @queue_dir %>/bounces'
+NEWSQUEUE_DIR   = '<%= @queue_dir %>/news'
+ARCHQUEUE_DIR   = '<%= @queue_dir %>/archive'
+SHUNTQUEUE_DIR  = '<%= @queue_dir %>/shunt'
+VIRGINQUEUE_DIR = '<%= @queue_dir %>/virgin'
+BADQUEUE_DIR    = '<%= @queue_dir %>/bad'
+RETRYQUEUE_DIR  = '<%= @queue_dir %>/retry'
+MAILDIR_DIR     = '<%= @queue_dir %>/maildir'
+
+VIRTUAL_HOST_OVERVIEW = <%= @virtual_host_overview %>
+
+SMTP_MAX_RCPTS = <%= @smtp_max_rcpts %>

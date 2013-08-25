@@ -2,6 +2,12 @@
 #
 # Full description of class mailman here.
 #
+# This sets up a minimal Mailman runtime environment.
+# This class does not integrate with Apache or Postfix. You can either use the included helper modules, or do it yourself.
+# To integrate with Apache or Postfix, use the additional included modules.
+# Also you can use the options module to configure nonessential parameters that don't affect the runtime environment.
+# Basically just preferences.
+#
 # Designed to work with Mailman >= 2.1.5, mostly because of where files are located.
 #
 # TODO: maybe allow creator/adm passwords as class parameters?
@@ -42,21 +48,6 @@ class mailman (
 	$language = 'en',
 	$mailman_site_list = 'mailman',
 	$mta = 'Manual',
-	$default_email_host  = $mailman::params::default_email_host,
-	$default_url_host    = $mailman::params::default_url_host,
-	$default_url_pattern = $mailman::params::default_url_pattern,
-        $default_send_reminders = true,
-        $default_archive_private = '0',
-        $default_max_message_size = '40', # in KB
-        $default_msg_footer = '""',
-        $default_subscribe_policy = '1',
-        $default_private_roster = '1',
-        $default_generic_nonmember_action = '1',
-        $default_forward_auto_discards = true,
-        $default_require_explicit_destination = true,
-        $default_max_num_recipients = '10',
-	$virtual_host_overview = true,
-	$smtp_max_rcpts = '500',
 
 	$list_data_dir   = $mailman::params::list_data_dir,
 	$log_dir         = $mailman::params::log_dir,
@@ -74,6 +65,13 @@ class mailman (
 	$pid_file        = $mailman::params::pid_file,
 	$site_pw_file    = $mailman::params::site_pw_file,
 	$creator_pw_file = $mailman::params::creator_pw_file,
+
+        $default_email_host  = $mailman::params::default_email_host,
+        $default_url_host    = $mailman::params::default_url_host,
+        $default_url_pattern = $mailman::params::default_url_pattern,
+
+        $virtual_host_overview                = true,
+        $smtp_max_rcpts                       = '500',
 ) inherits mailman::params {
 	$langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
 		'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',
@@ -81,41 +79,16 @@ class mailman (
 	validate_bool($activate_qrunners)
 	validate_re($language, $langs)
 	validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
+	# TODO: create manifest called "mailman::postfix" and use concat to load MTA settings into mm_cfg.py
 	validate_re($mta, ['Manual', 'Postfix'])
-	validate_bool($default_send_reminders)
-	validate_re($default_archive_private, [0,1])
-	validate_re($default_max_message_size, '[0-9]*')
-	validate_re($default_msg_footer, ['^""".*$', '".*"'])
-	validate_re($default_subscribe_policy, [0,1,2,3])
-	validate_re($default_private_roster, [0,1,2])
-	validate_re($default_generic_nonmember_action, [0,1,2,3])
-	validate_bool($default_forward_auto_discards)
-	validate_bool($default_require_explicit_destination)
-	validate_re($default_max_num_recipients, '[0-9]*')
-	validate_bool($virtual_host_overview)
-	validate_re($smtp_max_rcpts, '[0-9]*')
-
-	include mailman::apache
+        validate_bool($virtual_host_overview)
+        validate_re($smtp_max_rcpts, '[0-9]*')
 
 	$prefix          = $mailman::params::prefix
-	$exec_prefix     = $mailman::params::exec_prefix
 	$var_prefix      = $mailman::params::var_prefix
 
 	$private_archive_file_dir = $mailman::params::private_archive_file_dir
 	$public_archive_file_dir  = $mailman::params::public_archive_file_dir
-
-        $inqueue_dir     = "${queue_dir}/in"
-        $outqueue_dir    = "${queue_dir}/out"
-        $cmdqueue_dir    = "${queue_dir}/commands"
-        $bouncequeue_dir = "${queue_dir}/bounces"
-        $newsqueue_dir   = "${queue_dir}/news"
-        $archqueue_dir   = "${queue_dir}/archive"
-        $shuntqueue_dir  = "${queue_dir}/shunt"
-        $virginqueue_dir = "${queue_dir}/virgin"
-        $badqueue_dir    = "${queue_dir}/bad"
-        $retryqueue_dir  = "${queue_dir}/retry"
-        $maildir_dir     = "${queue_dir}/maildir"
-
 
 	# Originally I wanted to use native Python path joins exactly the same
 	# as is done in Defaults.py. However, it is useful to have all of the
@@ -158,8 +131,8 @@ class mailman (
 	$site_list_pw = generate("/bin/sh", "-c", "PATH=/bin:/usr/bin; dd bs=64 count=1 if=/dev/urandom 2> /dev/null | tr -dc 'a-zA-Z0-9' | fold -c16 | head -n1")
 	package { 'mailman':
 		ensure  => installed,
-	} -> file { "${prefix}/Mailman/mm_cfg.py":
-		content => template("${module_name}/mm_cfg.py.erb"),
+	} -> concat { 'mm_cfg':
+		path    => "${prefix}/Mailman/mm_cfg.py",
 		owner   => 'root',
 		group   => 'mailman',
 		mode    => '0644',
@@ -172,4 +145,14 @@ class mailman (
 		ensure  => $activate_qrunners,
 		enable  => $activate_qrunners,
 	}
+
+	# Concat::fragment MUST come after concat. Not totally sure why.
+	concat::fragment { 'mm_cfg_top':
+		content => template("${module_name}/mm_cfg.py.erb"),
+		target  => 'mm_cfg',
+		order   => '00',
+	}
+	
+	# MUST leave concat fragments until after "concat" is declared.
+	include mailman::options
 }
