@@ -26,9 +26,9 @@ Alias /pipermail/ <%= @public_archive_dir %>/
 </Directory>
 
 # Redirect queries from /mailman to the listinfo page (recommended).
-RedirectMatch ^/mailman[/]*$ /mailman/listinfo
+RedirectMatch ^/mailman[/]*$ http://<%= @server_name %>/mailman/listinfo
 
 # Redirect the root index page to listinfo (custom for this module)
-RedirectMatch ^/?$ /mailman/listinfo
+RedirectMatch ^/?$ http://<%= @server_name %>/mailman/listinfo
 
 </VirtualHost>
