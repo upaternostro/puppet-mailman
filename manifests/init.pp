@@ -130,7 +130,12 @@ class mailman (
 	}
 
 	# Mailman does not automatically create the list data dir
-	file { $list_data_dir:
+	file { $var_prefix:
+		ensure => directory,
+		owner  => 'root',
+		group  => 'mailman',
+		mode   => '2775',
+	} -> file { $list_data_dir:
 		ensure => directory,
 		owner  => 'root',
 		group  => 'mailman',
