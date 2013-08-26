@@ -58,6 +58,7 @@ class mailman::apache {
     command => "touch ${favicon}",
     path    => '/bin',
     creates => $favicon,
+    require => File[$document_root],
   }
 
   file { [ $custom_log, $error_log ]:
@@ -80,5 +81,6 @@ class mailman::apache {
   service { $httpd_service:
     ensure    => running,
     enable    => true,
+    require   => File[$document_root],
   }
 }
