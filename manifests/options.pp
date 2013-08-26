@@ -1,24 +1,28 @@
 # == Class: mailman::options
 #
-# Full description of class mailman here.
+# This is an optional class that can be used to customize the defaults used when
+# creating new mailing lists. However, note that these settings have no effect
+# on mailing lists that have already been created.
+#  TODO: make a class that fixes list configuration retroactively.
 #
-# This class is nice for setting defaults going forward, but it doesn't do
-# any good for cleaning up settings on old lists, like if a new domain
-# name is being used. So...
-#
-# TODO: write a class that dumps out the configuration of each list
-# into a file, maybe on a crontab, and brings the LIST configuration
-# in line with preferred current values.
+# The default values for the parameters in this class match the default values of
+a standard Mailman installation. If this class isn't declared, then the options
+# won't be included in mm_cfg.py.
 #
 # === Parameters
 #
-# [*virtual_host_overview*]
-#   We want the web interface to display lists even when teh URL does not
-#   match, which makes it easier to test web interfaces on several servers
+# All of the parameters in this class have a 1:1 correspondence with Mailman
+# variables defined in Default.py. A complete reference about list settings
+# is available on the Mailman website:
+# http://www.gnu.org/software/mailman/mailman-admin/node8.html
 #
 # === Examples
 #
-#  include mailman::options
+# class { 'mailman::options':
+#   default_send_reminders   => false,
+#   default_archive_private  => 1,
+#   default_max_message_size => 500,
+# }
 #
 # === Authors
 #
