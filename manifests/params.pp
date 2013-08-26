@@ -25,6 +25,7 @@ class mailman::params (
   $exec_prefix     = '/usr/lib/mailman',
   $var_prefix      = '/var/lib/mailman',
 ) {
+  validate_re($exec_prefix, "^${prefix}")
   $list_data_dir   = "${var_prefix}/lists"
   $data_dir        = "${var_prefix}/data"
   $spam_dir        = "${var_prefix}/spam"
