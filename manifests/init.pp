@@ -50,7 +50,7 @@ class mailman (
   $language              = 'en',
   $mailman_site_list     = 'mailman',
   $mta                   = 'Manual',
-  $smtp_hostname         = $::hostname,
+  $smtp_hostname         = $::fqdn,
   $http_hostname         = $::hostname,
   $default_url_pattern   = 'http://%s/mailman/',
   $virtual_host_overview = false,
