@@ -1,25 +1,14 @@
 # == Class: mailman::apache
 #
-# Full description of class mailman here.
+# This class provides a bare minimum configuration of Apache for integration
+# with Mailman to provide web based moderation and viewing of Archives.
 #
-# NOTE: Assumes that you are using name-based virtual hosting on your Apache server.
-# Creating a binding in port 80 without namevirtualhost will lead to overlaps
-# Suggest integration with logrotate too?
-#
-# Also assumes that you aren't managing Apache with a different Puppet class.
-#
-# Note: httpd is installed as a pre-req for Mailman on RedHat systems, so
-# we can assume that httpd service is available.
-#
-# === Parameters
-#
-# [*MTA*]
-#   The MTA param names a module in the Mailman/MTA dir which contains the mail
-#   server-specific functions to be executed when a list is created or removed.
+# This assumes that you aren't managing Apache in any other Puppet module, and
+# that Apache isn't serving any other domains on the same server.
 #
 # === Examples
 #
-#  include mailman::apache
+# include mailman::apache
 #
 # === Authors
 #
@@ -46,6 +35,8 @@ class mailman::apache {
   # TODO make this work on Debian systems too
   $httpd_service      = 'httpd'
 
+  # TODO: make dependency on Package['httpd'] explicit
+  # Although httpd will be installed with Mailman, ordering still matters.
   file { $document_root:
     ensure  => directory,
     owner   => 'apache',
@@ -69,6 +60,7 @@ class mailman::apache {
     seltype => 'httpd_log_t',
   }
 
+  # TODO: ensure that NameVirtualHost is active in Apache config
   file { $vhost_file:
     ensure  => present,
     content => template("${module_name}/mailman_vhost.conf.erb"),
