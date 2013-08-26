@@ -122,6 +122,14 @@ class mailman (
     order   => '00',
   }
 
+  # Sometimes the aliases file can get messy or out of date.
+  exec { 'genaliases':
+    command     => 'genaliases',
+    path        => $bin_dir,
+    refreshonly => true,
+    subscribe   => Concat['mm_cfg'],
+  }
+
   # Create files with a SHA1 hash of the site_pw (basically a skeleton key)
   file { [$site_pw_file, $creator_pw_file]:
     ensure  => present,

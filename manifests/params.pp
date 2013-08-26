@@ -22,7 +22,7 @@
 #
 class mailman::params (
   $prefix          = '/usr/lib/mailman',
-  $exec_prefix     = $prefix,
+  $exec_prefix     = '/usr/lib/mailman',
   $var_prefix      = '/var/lib/mailman',
 ) {
   $list_data_dir   = "${var_prefix}/lists"
