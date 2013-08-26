@@ -6,7 +6,7 @@
 #  TODO: make a class that fixes list configuration retroactively.
 #
 # The default values for the parameters in this class match the default values of
-a standard Mailman installation. If this class isn't declared, then the options
+# a standard Mailman installation. If this class isn't declared, then the options
 # won't be included in mm_cfg.py.
 #
 # === Parameters
