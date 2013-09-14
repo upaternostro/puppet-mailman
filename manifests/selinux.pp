@@ -20,4 +20,9 @@ class mailman::selinux {
     source => "puppet:///modules/${module_name}/selinux/",
     ignore => ['.svn'],
   }
+
+  exec { 'setsebool -P httpd_use_nfs true':
+    path   => '/bin:/usr/sbin',
+    unless => 'getsebool httpd_use_nfs | grep on',
+  }
 }
