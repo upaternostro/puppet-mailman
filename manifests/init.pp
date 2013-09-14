@@ -91,6 +91,8 @@ class mailman (
   $template_dir    = $mailman::params::template_dir
   $messages_dir    = $mailman::params::messages_dir
   $wrapper_dir     = $mailman::params::wrapper_dir
+  #config_dir isn't standard mailman, it only exists in red hat
+  $config_dir      = $mailman::params::config_dir
 
   $private_archive_file_dir = "${archive_dir}/private"
   $public_archive_file_dir  = "${archive_dir}/public"
@@ -179,6 +181,13 @@ class mailman (
     seltype => 'mailman_data_t',
     require => Package['mailman'],
   }
+  file { $data_dir:
+    ensure  => directory,
+    owner   => 'root',
+    group   => 'mailman',
+    mode    => '2775',
+    seltype => 'mailman_data_t',
+  }
   file { $list_data_dir:
     ensure  => directory,
     owner   => 'root',
@@ -212,6 +221,50 @@ class mailman (
   }
 
   # TODO: maybe need to create other directories too?
+
+  # Red Hat packages are customized to create files in /etc/ but this
+  # module ignores that and puts everything in DATA_DIR. As a compromise,
+  # we can insert symlinks to make RedHat users happy.
+  if $::osfamily == 'RedHat' {
+    $etc_dir = '/etc/mailman'
+    file { $etc_dir:
+      ensure  => directory,
+      owner   => 'root',
+      group   => 'mailman',
+      mode    => '2775',
+      seltype => 'mailman_data_t',
+    }
+    file { "${etc_dir}/adm.pw":
+      ensure  => link,
+      target  => $site_pw_file,
+      require => File[$etc_dir],
+    }
+    file { "${etc_dir}/creator.pw":
+      ensure  => link,
+      target  => $creator_pw_file,
+      require => File[$etc_dir],
+    }
+    file { "${etc_dir}/aliases":
+      ensure  => link,
+      target  => "${data_dir}/aliases",
+      require => File[$etc_dir],
+    }
+    file { "${etc_dir}/aliases.db":
+      ensure  => link,
+      target  => "${data_dir}/aliases.db",
+      require => File[$etc_dir],
+    }
+    file { "${etc_dir}/virtual-mailman":
+      ensure  => link,
+      target  => "${data_dir}/virtual-mailman",
+      require => File[$etc_dir],
+    }
+    file { "${etc_dir}/sitelist.cfg":
+      ensure  => link,
+      target  => "${data_dir}/sitelist.cfg",
+      require => File[$etc_dir],
+    }
+  }
 
   # If the site list doesn't exist already, then it is created and the
   # password is immediately reset.
