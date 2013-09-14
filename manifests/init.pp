@@ -259,11 +259,6 @@ class mailman (
       target  => "${data_dir}/virtual-mailman",
       require => File[$etc_dir],
     }
-    file { "${etc_dir}/sitelist.cfg":
-      ensure  => link,
-      target  => "${data_dir}/sitelist.cfg",
-      require => File[$etc_dir],
-    }
   }
 
   # If the site list doesn't exist already, then it is created and the
