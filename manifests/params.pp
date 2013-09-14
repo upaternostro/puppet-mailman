@@ -57,6 +57,9 @@ class mailman::params (
   # archive_dir is not a real Mailman param, it's just useful in this module
   $archive_dir    = "${var_prefix}/archives"
 
+  # As of Mailman 2.1.5, the packages distributed by RedHat (and derivatives)
+  # change a few file locations become FHS-conformant.
+  # http://wiki.list.org/pages/viewpage.action?pageId=8486957
   case $::osfamily {
     'RedHat': {
       $log_dir         = '/var/log/mailman'
