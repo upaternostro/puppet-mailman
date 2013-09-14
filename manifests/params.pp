@@ -56,10 +56,6 @@ class mailman::params (
   $messages_dir    = "${prefix}/messages"
   # archive_dir is not a real Mailman param, it's just useful in this module
   $archive_dir    = "${var_prefix}/archives"
-  # config_dir is not in standard Mailman, it is specific to Red Hat
-  # but it is harmless to include in mm_cfg. This module actually deviates slightly
-  # from the Red Hat format by putting the files back into data_dir instead of /etc/.
-  $config_dir      = $data_dir
 
   # As of Mailman 2.1.5, the packages distributed by RedHat (and derivatives)
   # change a few file locations become FHS-conformant.
@@ -68,8 +64,6 @@ class mailman::params (
     'RedHat': {
       $log_dir         = '/var/log/mailman'
       $lock_dir        = '/var/lock/mailman'
-      $site_pw_file    = "${config_dir}/adm.pw"
-      $creator_pw_file = "${config_dir}/creator.pw"
       $pid_dir         = '/var/run/mailman'
       $pid_file        = "${pid_dir}/master-qrunner.pid"
       $queue_dir       = '/var/spool/mailman'

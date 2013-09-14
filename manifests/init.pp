@@ -64,8 +64,6 @@ class mailman (
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
-  $site_pw_file          = $mailman::params::site_pw_file,
-  $creator_pw_file       = $mailman::params::creator_pw_file,
 ) inherits mailman::params {
   $langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
     'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',
@@ -92,8 +90,11 @@ class mailman (
   $messages_dir    = $mailman::params::messages_dir
   $wrapper_dir     = $mailman::params::wrapper_dir
   #config_dir isn't standard mailman, it only exists in red hat
-  $config_dir      = $mailman::params::config_dir
+  #but it does need to be in the config file for redhat, for MTA postfix
+  $config_dir      = $data_dir
 
+  $site_pw_file    = "${data_dir}/adm.pw"
+  $creator_pw_file = "${data_dir}/creator.pw"
   $private_archive_file_dir = "${archive_dir}/private"
   $public_archive_file_dir  = "${archive_dir}/public"
 
