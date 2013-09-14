@@ -61,11 +61,6 @@ class mailman (
   $data_dir              = $mailman::params::data_dir,
   $pid_dir               = $mailman::params::pid_dir,
   $spam_dir              = $mailman::params::spam_dir,
-  $wrapper_dir           = $mailman::params::wrapper_dir,
-  $bin_dir               = $mailman::params::bin_dir,
-  $scripts_dir           = $mailman::params::scripts_dir,
-  $template_dir          = $mailman::params::template_dir,
-  $messages_dir          = $mailman::params::messages_dir,
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
@@ -90,6 +85,12 @@ class mailman (
   # variables, and overriding them would be counter-intuitive.
   $prefix          = $mailman::params::prefix
   $var_prefix      = $mailman::params::var_prefix
+  # Also static directories don't need to be relocated.
+  $bin_dir         = $mailman::params::bin_dir
+  $scripts_dir     = $mailman::params::scripts_dir
+  $template_dir    = $mailman::params::template_dir
+  $messages_dir    = $mailman::params::messages_dir
+  $wrapper_dir     = $mailman::params::wrapper_dir
 
   $private_archive_file_dir = "${archive_dir}/private"
   $public_archive_file_dir  = "${archive_dir}/public"
