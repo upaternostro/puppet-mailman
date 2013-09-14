@@ -140,15 +140,33 @@ class mailman (
     owner   => 'root',
     group   => 'mailman',
     mode    => '0644',
+    seltype => 'mailman_data_t',
     require => Package['mailman'],
   }
 
   # Need to ensure that queue_dir exists, in case a custom valid is provided.
-  file { [$queue_dir, $log_dir, $lock_dir]:
+  file { $queue_dir:
     ensure  => directory,
     owner   => 'mailman',
     group   => 'mailman',
     mode    => '2770',
+    seltype => 'mailman_data_t',
+    require => Package['mailman'],
+  }
+  file { $log_dir:
+    ensure  => directory,
+    owner   => 'mailman',
+    group   => 'mailman',
+    mode    => '2770',
+    seltype => 'mailman_log_t',
+    require => Package['mailman'],
+  }
+  file { $lock_dir:
+    ensure  => directory,
+    owner   => 'mailman',
+    group   => 'mailman',
+    mode    => '2770',
+    seltype => 'mailman_lock_t',
     require => Package['mailman'],
   }
   # If a custom value is provided for var_prefix then it needs to be created.
@@ -157,6 +175,7 @@ class mailman (
     owner   => 'root',
     group   => 'mailman',
     mode    => '2775',
+    seltype => 'mailman_data_t',
     require => Package['mailman'],
   }
   file { $list_data_dir:
@@ -164,6 +183,7 @@ class mailman (
     owner   => 'root',
     group   => 'mailman',
     mode    => '2775',
+    seltype => 'mailman_data_t',
     require => File[$var_prefix],
   }
   file { $archive_dir:

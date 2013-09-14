@@ -42,6 +42,7 @@ class mailman::apache {
     owner   => 'apache',
     group   => 'apache',
     mode    => '2775',
+    seltype => 'httpd_sys_content_t',
   }
   # Mailman does include a favicon in the HTML META section, but some silly
   # browsers still look for favicon.ico. Create a blank one to reduce 404's.
@@ -67,6 +68,7 @@ class mailman::apache {
     owner   => 'root',
     group   => 'mailman',
     mode    => '0644',
+    seltype => 'httpd_config_t',
     notify  => Service[$httpd_service],
   }
 
