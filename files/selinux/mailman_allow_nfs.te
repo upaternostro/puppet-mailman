@@ -1,4 +1,4 @@
-module mailman_allow_nfs 1.2.4;
+module mailman_allow_nfs 1.2.6;
 
 require {
   type mailman_cgi_t;
@@ -19,8 +19,9 @@ allow mailman_cgi_t nfs_t:file { rename create unlink link open read write appen
 allow mailman_cgi_t nfs_t:lnk_file { create };
 
 #============= mailman_mail_t ==============
-allow mailman_mail_t nfs_t:dir search;
-allow mailman_mail_t nfs_t:file setattr;
+# This includes mailmanctl and qrunner
+allow mailman_mail_t nfs_t:dir { search read create write getattr remove_name open add_name };
+allow mailman_mail_t nfs_t:file { rename create unlink link setattr };
 
 #============= mailman_queue_t ==============
 #!!!! The source type 'mailman_queue_t' can write to a 'dir' of the following types:
