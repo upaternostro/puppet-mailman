@@ -104,6 +104,8 @@ class mailman (
   $creator_pw_file = "${data_dir}/creator.pw"
   $private_archive_file_dir = "${archive_dir}/private"
   $public_archive_file_dir  = "${archive_dir}/public"
+  $aliasfile       = "${data_dir}/aliases"
+  $aliasfiledb     = "${data_dir}/aliases.db"
 
   # Since this variable is reused by Apache class, it needed a better name
   # than default_url_host.
@@ -195,6 +197,22 @@ class mailman (
     group   => 'mailman',
     mode    => '2775',
     seltype => 'mailman_data_t',
+  }
+  file { $aliasfile:
+    ensure  => present,
+    owner   => 'mailman',
+    group   => 'apache',
+    mode    => '0664',
+    seltype => 'mailman_data_t',
+    require => File[$data_dir],
+  }
+  file { $aliasfiledb:
+    ensure  => present,
+    owner   => 'mailman',
+    group   => 'apache',
+    mode    => '0664',
+    seltype => 'mailman_data_t',
+    require => File[$data_dir],
   }
   file { $list_data_dir:
     ensure  => directory,
