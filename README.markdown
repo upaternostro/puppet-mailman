@@ -105,6 +105,7 @@ They need to use shared storage, such as NFS.
 
 ## Limitations
 This module has been built on and tested against these Puppet versions:
+* 3.3.0
 * 3.2.4
 
 This module has been tested on the following distributions:
