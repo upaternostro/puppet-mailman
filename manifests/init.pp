@@ -77,6 +77,13 @@ class mailman (
   validate_re($http_hostname, "^[-a-zA-Z0-9\.]+$")
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
+  if $::osfamily == 'RedHat' {
+    if $list_data_dir != "${var_prefix}/lists" {
+      $rmlist_msg = "On RedHat systems, list_data_dir must reside in var_prefix, otherwise rmlist will fail"
+      alert($rmlist_msg)
+      notify { $rmlist_msg: }
+    }
+  }
 
   # These are local variables instead of parameters because it would not make
   # sense to override them. Prefix and Var_prefix are the basis of many other
