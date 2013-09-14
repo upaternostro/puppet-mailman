@@ -122,13 +122,16 @@ class mailman (
     order   => '00',
   }
 
-  # Sometimes the aliases file can get messy or out of date.
-  exec { 'genaliases':
-    command     => 'genaliases',
-    path        => $bin_dir,
-    refreshonly => true,
-    subscribe   => Concat['mm_cfg'],
-  }
+  # Although running genaliases seems like a helpful idea, there is a known bug
+  # in Mailman prior to 2.1.15 that causes genaliases to run very slowly on
+  # systems with large numbers of lists. I'm leaving this commented out for now,
+  # and might bring it back later as an option, or dependent on Mailman version.
+  #exec { 'genaliases':
+  #  command     => 'genaliases',
+  #  path        => $bin_dir,
+  #  refreshonly => true,
+  #  subscribe   => Concat['mm_cfg'],
+  #}
 
   # Create files with a SHA1 hash of the site_pw (basically a skeleton key)
   file { [$site_pw_file, $creator_pw_file]:
