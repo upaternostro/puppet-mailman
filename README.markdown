@@ -25,6 +25,11 @@ Mailman web frontend from the MTA backend.
 Hiera automatic parameter lookup is fully supported thanks to the extensive use
 of parameterized classes.
 
+This modules simplifies a commonly requested feature, which is the ability to
+change the location of VAR_PREFIX in mm_cfg.py. For more on that discussion see here:
+* https://bugs.launchpad.net/mailman/+bug/925502
+* https://bugzilla.redhat.com/show_bug.cgi?id=786822
+
 ## Quick Start
 I just want Mailman to work. What's the minimum I need?
 
