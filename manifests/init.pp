@@ -22,15 +22,63 @@
 # Caution: If you use Mailman on more than one server, be careful to
 # only enable the Mailman service (qrunners) on ONE server.
 #
-# [*MTA*]
-#   The MTA param names a module in the Mailman/MTA dir which contains the mail
-#   server-specific functions to be executed when a list is created or removed.
+# [*enable_service*]
+#   Although it's possible to have a Mailman database shared among multiple
+#   hosts, you *must not* enable the qrunners on more than one server at a
+#   time. In a single server setup this should be enabled. In a multi-server
+#   setup, ensure that only one node has this enabled. This is effectively
+#   the same as "service mailman start".
+#
+# [*site_pw*]
+#   Define the master password for Mailman administration. This password will
+#   let you create lists, as well as view admin pages and list archives.
+#
+# [*language*]
+#   Default language is English. Mailman supports a variety of languages.
+#
+# [*mta*]
+#   A Mailman MTA module contains code to add and remove entries from aliases
+#   files. Using Postfix with Mailman is the most typical choice.
+#
+# [*smtp_hostname*]
+#   In Mailman parlance, this variable is known as "default_email_host".
+#   This is the hostname used in email addresses for your domain.
+#   Note this CANNOT be a single-label DNS name (eg. "localhost").
+#   Mailman insists that the mail domain MUST have 2 or more parts.
+#
+# [*http_hostname*]
+#   This is the hostname that people use in a web browser to access the frontend.
+#   This commonly matches smtp_hostname but that isn't a requirement.
+#   A single-label DNS name is permitted here (eg. "localhost").
 #
 # [*virtual_host_overview*]
-#   We want the web interface to display lists even when teh URL does not
-#   match, which makes it easier to test web interfaces on several servers
+#   This is normally set to true, which means that mailing lists will only show
+#   up on the frontend if the HTTP hostname matches the list. This tends to
+#   confuse people, so I have it turned off by default. Thus all mailing lists
+#   will be shown on the frontend regardless of hostname in the HTTP request.
 #   This is a deviation from the Mailman default of "true".
-#   This allows lists to show up, even if the wrong hostname is being used.
+#
+# [*smtp_max_rcpts*]
+#   Maximum number of recipients used in a single message transaction. 500 is
+#   the default value. Sometimes reducing this number increases the reliability
+#   of message delivery. But larger numbers are theoretically faster. If you
+#   have lists with a large number of invalid recipients in a single domain,
+#   reducing this number is very likely to help with reliable delivery.
+#
+# [*list_data_dir,log_dir,lock_dir,data_dir,pid_dir,spam_dir,queue_dir,archive_dir,pid_file*]
+#   These parameters define where Mailman stores the data it creates.
+#   Each of this must be overridden individually.
+#
+# [*var_prefix*]
+#   var_prefix is only in here because its needed by RHEL for an edge case
+#   otherwise the intention is to always be explicit with parameters.
+#   So treat this as if it is deprecated. Maybe it will get fixed upstream. TODO
+#   If you change var_prefix, you SHOULD change relevant subdirectories. Check
+#   params.pp to see exactly which directories need to be overridden.
+#   I would prefer that var_prefix cannot be customized, but on RedHat
+#   the "rmlist" command explicitly depends on var_prefix. (#11) So if we
+#   want rmdir to work with non-standard list data dir, then var_prefix must
+#   also be customizable.
 #
 # === Examples
 #
@@ -48,11 +96,9 @@ class mailman (
   $enable_service        = false,
   $site_pw               = 'CHANGEME',
   $language              = 'en',
-  $mailman_site_list     = 'mailman',
   $mta                   = 'Manual',
   $smtp_hostname         = $::fqdn,
   $http_hostname         = $::hostname,
-  $default_url_pattern   = 'http://%s/mailman/',
   $virtual_host_overview = false,
   $smtp_max_rcpts        = 500,
   $list_data_dir         = $mailman::params::list_data_dir,
@@ -64,7 +110,7 @@ class mailman (
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
-  # var_prefix is only in here because it's needed by RHEL for an edge case
+  # var_prefix is only in here because its needed by RHEL for an edge case
   # otherwise the intention is to always be explicit with parameters
   $var_prefix            = $mailman::params::var_prefix,
 ) inherits mailman::params {
@@ -73,29 +119,15 @@ class mailman (
     'ru','sk','sl','sr','sv','tr','uk','vi','zh_CN','zh_TW']
   validate_bool($enable_service)
   validate_re($language, $langs)
-  validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
   validate_re($mta, ['Manual', 'Postfix'])
-  # Mailman insists that the mail domain MUST have 2 or more parts
   validate_re($smtp_hostname, "^[-a-zA-Z0-9]+\.[-a-zA-Z0-9\.]+$")
   validate_re($http_hostname, "^[-a-zA-Z0-9\.]+$")
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
 
-  # I would prefer that var_prefix cannot be customized, but on RedHat
-  # the "rmlist" command explicitly depends on var_prefix. (#11) So if we
-  # want rmdir to work with non-standard list data dir, then var_prefix must
-  # also be customizable.
-  if $var_prefix != $mailman::params::var_prefix {
-    $vpmsg = "If you change var_prefix, you SHOULD change relevant subdirectories."
-    notice($vpmsg)
-    notify {$vpmsg:}
-  }
-
-  if $::osfamily == 'RedHat' {
-    if $list_data_dir != "${var_prefix}/lists" {
-      $rmlist_msg = "On RedHat systems, list_data_dir must reside in var_prefix, otherwise rmlist will fail"
-      fail($rmlist_msg)
-    }
+  if ($::osfamily == 'RedHat') and ($list_data_dir != "${var_prefix}/lists") {
+    $rmlist_msg = "On RedHat systems, list_data_dir must reside in var_prefix, otherwise rmlist will fail"
+    fail($rmlist_msg)
   }
 
   # These are local variables instead of parameters because it would not make
@@ -118,6 +150,10 @@ class mailman (
   $public_archive_file_dir  = "${archive_dir}/public"
   $aliasfile       = "${data_dir}/aliases"
   $aliasfiledb     = "${data_dir}/aliases.db"
+
+  $default_url_pattern = 'http://%s/mailman/'
+  $mailman_site_list = 'mailman'
+  validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
 
   # Since this variable is reused by Apache class, it needed a better name
   # than default_url_host.

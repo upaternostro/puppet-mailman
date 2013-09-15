@@ -22,6 +22,8 @@ Simplicity across a variety of configurations is the goal for this module.
 This module is divided into logical parts that make it easy to separate the
 Mailman web frontend from the MTA backend.
 
+Main focus is on single-domain setups, no options for virtual domains included.
+
 Hiera automatic parameter lookup is fully supported thanks to the extensive use
 of parameterized classes.
 
