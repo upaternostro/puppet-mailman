@@ -55,6 +55,7 @@ class mailman (
   $default_url_pattern   = 'http://%s/mailman/',
   $virtual_host_overview = false,
   $smtp_max_rcpts        = 500,
+  $var_prefix            = $mailman::params::var_prefix,
   $list_data_dir         = $mailman::params::list_data_dir,
   $log_dir               = $mailman::params::log_dir,
   $lock_dir              = $mailman::params::lock_dir,
@@ -77,11 +78,21 @@ class mailman (
   validate_re($http_hostname, "^[-a-zA-Z0-9\.]+$")
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
+
+  # I would prefer that var_prefix cannot be customized, but on RedHat
+  # the "rmlist" command explicitly depends on var_prefix. (#11) So if we
+  # want rmdir to work with non-standard list data dir, then var_prefix must
+  # also be customizable.
+  if $var_prefix != $mailman::params::var_prefix {
+    $vpmsg = "If you change var_prefix, you SHOULD change relevant subdirectories."
+    notice($vpmsg)
+    notify {$vpmsg:}
+  }
+
   if $::osfamily == 'RedHat' {
     if $list_data_dir != "${var_prefix}/lists" {
       $rmlist_msg = "On RedHat systems, list_data_dir must reside in var_prefix, otherwise rmlist will fail"
-      alert($rmlist_msg)
-      notify { $rmlist_msg: }
+      fail($rmlist_msg)
     }
   }
 
@@ -89,7 +100,6 @@ class mailman (
   # sense to override them. Prefix and Var_prefix are the basis of many other
   # variables, and overriding them would be counter-intuitive.
   $prefix          = $mailman::params::prefix
-  $var_prefix      = $mailman::params::var_prefix
   # Also static directories don't need to be relocated.
   $bin_dir         = $mailman::params::bin_dir
   $scripts_dir     = $mailman::params::scripts_dir
