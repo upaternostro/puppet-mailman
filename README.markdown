@@ -103,7 +103,16 @@ They need to use shared storage, such as NFS.
     }
 
 ### Configuration using Hiera
-(Examples coming soon)
+    ---
+    mailman::enable_service: true
+    mailman::site_pw: 'CHANGEME'
+    mailman::language: 'en'
+    mailman::mta: 'Postfix'
+    mailman::smtp_hostname: 'localhost.localdomain'
+    mailman::smtp_max_rcpts: '50'
+
+Note that all values in Hiera must be quoted, even integer numbers. This is
+due to the use of validate_re() which expects all input as strings.
 
 ## Limitations
 This module has been built on and tested against these Puppet versions:
