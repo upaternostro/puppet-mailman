@@ -110,8 +110,6 @@ class mailman (
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
-  # var_prefix is only in here because its needed by RHEL for an edge case
-  # otherwise the intention is to always be explicit with parameters
   $var_prefix            = $mailman::params::var_prefix,
 ) inherits mailman::params {
   $langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
@@ -126,8 +124,7 @@ class mailman (
   validate_re($smtp_max_rcpts, '[0-9]*')
 
   if ($::osfamily == 'RedHat') and ($list_data_dir != "${var_prefix}/lists") {
-    $rmlist_msg = "On RedHat systems, list_data_dir must reside in var_prefix, otherwise rmlist will fail"
-    fail($rmlist_msg)
+    fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
   }
 
   # These are local variables instead of parameters because it would not make
@@ -294,50 +291,9 @@ class mailman (
     require => File[$archive_dir],
   }
 
-  # TODO: maybe need to create other directories too?
-
-  # Red Hat packages are customized to create files in /etc/ but this
-  # module ignores that and puts everything in DATA_DIR. As a compromise,
-  # we can insert symlinks to make RedHat users happy.
   if $::osfamily == 'RedHat' {
-    $etc_dir = '/etc/mailman'
-    file { $etc_dir:
-      ensure  => directory,
-      owner   => 'root',
-      group   => 'mailman',
-      mode    => '2775',
-      seltype => 'mailman_data_t',
-    }
-    file { "${etc_dir}/mm_cfg.py":
-      ensure  => link,
-      target  => "${prefix}/Mailman/mm_cfg.py",
-      require => File[$etc_dir],
-    }
-    file { "${etc_dir}/adm.pw":
-      ensure  => link,
-      target  => $site_pw_file,
-      require => File[$etc_dir],
-    }
-    file { "${etc_dir}/creator.pw":
-      ensure  => link,
-      target  => $creator_pw_file,
-      require => File[$etc_dir],
-    }
-    file { "${etc_dir}/aliases":
-      ensure  => link,
-      target  => "${data_dir}/aliases",
-      require => File[$etc_dir],
-    }
-    file { "${etc_dir}/aliases.db":
-      ensure  => link,
-      target  => "${data_dir}/aliases.db",
-      require => File[$etc_dir],
-    }
-    file { "${etc_dir}/virtual-mailman":
-      ensure  => link,
-      target  => "${data_dir}/virtual-mailman",
-      require => File[$etc_dir],
-    }
+    # Put some symlinks in /etc/ to be more like the official RHEL packages
+    include 'mailman::etclinks'
   }
 
   # If the site list doesn't exist already, then it is created and the
