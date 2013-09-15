@@ -3,7 +3,6 @@
 # This is an optional class that can be used to customize the defaults used when
 # creating new mailing lists. However, note that these settings have no effect
 # on mailing lists that have already been created.
-#  TODO: make a class that fixes list configuration retroactively.
 #
 # The default values for the parameters in this class match the default values of
 # a standard Mailman installation. If this class isn't declared, then the options

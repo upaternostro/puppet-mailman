@@ -22,7 +22,6 @@ class mailman::apache {
   $prefix             = $mailman::params::prefix
   $log_dir            = $mailman::log_dir
   $public_archive_dir = $mailman::public_archive_file_dir
-
   $vhost_file         = "/etc/httpd/conf.d/mailman.conf"
   $server_name        = $mailman::http_hostname
   $server_admin       = "mailman@${mailman::smtp_hostname}"
@@ -32,7 +31,6 @@ class mailman::apache {
   $custom_log         = "${log_dir}/apache_access_log"
   $error_log          = "${log_dir}/apache_error_log"
   $favicon            = "${document_root}/favicon.ico"
-  # TODO make this work on Debian systems too
   $httpd_service      = 'httpd'
 
   file { $document_root:
@@ -60,7 +58,6 @@ class mailman::apache {
     seltype => 'httpd_log_t',
   }
 
-  # TODO: ensure that NameVirtualHost is active in Apache config
   file { $vhost_file:
     ensure  => present,
     content => template("${module_name}/mailman_vhost.conf.erb"),

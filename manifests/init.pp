@@ -72,7 +72,7 @@
 # [*var_prefix*]
 #   var_prefix is only in here because its needed by RHEL for an edge case
 #   otherwise the intention is to always be explicit with parameters.
-#   So treat this as if it is deprecated. Maybe it will get fixed upstream. TODO
+#   So treat this as if it is deprecated. Maybe it will get fixed upstream.
 #   If you change var_prefix, you SHOULD change relevant subdirectories. Check
 #   params.pp to see exactly which directories need to be overridden.
 #   I would prefer that var_prefix cannot be customized, but on RedHat

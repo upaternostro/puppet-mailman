@@ -37,8 +37,6 @@ class mailman::config inherits mailman::params {
   $queue_dir                = $mailman::queue_dir
   $virtual_host_overview    = $mailman::virtual_host_overview
   $smtp_max_rcpts           = $mailman::smtp_max_rcpts
-
-  # TODO: either use these in template, or remove them from params
   $prefix                   = $mailman::params::prefix
   $bin_dir                  = $mailman::params::bin_dir
   $scripts_dir              = $mailman::params::scripts_dir
