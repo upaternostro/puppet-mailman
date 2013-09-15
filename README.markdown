@@ -107,6 +107,8 @@ They need to use shared storage, such as NFS.
 This module has been built on and tested against these Puppet versions:
 * 3.3.0
 * 3.2.4
+* 3.1.1
 
 This module has been tested on the following distributions:
 * Scientific Linux release 6.4
+* Fedora 19
