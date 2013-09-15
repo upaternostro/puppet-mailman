@@ -35,14 +35,13 @@ class mailman::apache {
   # TODO make this work on Debian systems too
   $httpd_service      = 'httpd'
 
-  # TODO: make dependency on Package['httpd'] explicit
-  # Although httpd will be installed with Mailman, ordering still matters.
   file { $document_root:
     ensure  => directory,
     owner   => 'apache',
     group   => 'apache',
     mode    => '2775',
     seltype => 'httpd_sys_content_t',
+    require => Package['httpd'],
   }
   # Mailman does include a favicon in the HTML META section, but some silly
   # browsers still look for favicon.ico. Create a blank one to reduce 404's.

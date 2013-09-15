@@ -138,7 +138,7 @@ class mailman (
     fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
   }
 
-  package { 'mailman':
+  package { ['httpd', 'mailman']:
     ensure  => installed,
   }
 
