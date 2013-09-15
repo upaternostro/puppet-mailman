@@ -101,6 +101,8 @@ add_virtualhost(DEFAULT_URL_HOST, DEFAULT_EMAIL_HOST)
 false = False
 true  = True
 
+VAR_PREFIX    = '<%= @var_prefix %>'
+
 LANGUAGE      = '<%= @language %>'
 MTA           = '<%= @mta %>'
 
@@ -109,9 +111,12 @@ LOCK_DIR      = '<%= @lock_dir %>'
 PID_DIR       = '<%= @pid_dir %>'
 PID_FILE      = '<%= @pid_file %>'
 WRAPPER_DIR   = '<%= @wrapper_dir %>'
-VAR_PREFIX    = '<%= @var_prefix %>'
 DATA_DIR      = '<%= @data_dir %>'
 LIST_DATA_DIR = '<%= @list_data_dir %>'
+BIN_DIR       = '<%= @bin_dir %>'
+SCRIPTS_DIR   = '<%= @scripts_dir %>'
+TEMPLATE_DIR  = '<%= @template_dir %>'
+MESSAGES_DIR  = '<%= @messages_dir %>'
 
 # config_dir isn't part of standard Mailman, it's only used by Red Hat
 # Here we manually override SITE_PW_FILE and LISTCREATOR_PW_FILE
