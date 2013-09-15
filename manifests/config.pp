@@ -1,5 +1,9 @@
 # == Class: mailman::config
 #
+# This class has one job: get started building mm_cfg.py for Mailman.
+# When using big templates, I like to dedicate an entire class to the purpose
+# so that all manifests are clear about which variables are actually used.
+#
 # === Examples
 #
 # This is used internally by class 'mailman'. Don't reference it externally.
