@@ -123,62 +123,26 @@ class mailman (
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
 
+  $site_pw_file             = "${data_dir}/adm.pw"
+  $creator_pw_file          = "${data_dir}/creator.pw"
+  $aliasfile                = "${data_dir}/aliases"
+  $aliasfiledb              = "${data_dir}/aliases.db"
+  $private_archive_file_dir = "${archive_dir}/private"
+  $public_archive_file_dir  = "${archive_dir}/public"
+  $mailman_site_list        = 'mailman' # Allows chars are [-+_.=a-z0-9]
+  $default_email_host       = $smtp_hostname
+  $admin_email              = "${mailman_site_list}@${default_email_host}"
+  $site_pw_hash             = sha1($site_pw)
+
   if ($::osfamily == 'RedHat') and ($list_data_dir != "${var_prefix}/lists") {
     fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
   }
-
-  # These are local variables instead of parameters because it would not make
-  # sense to override them. Prefix and Var_prefix are the basis of many other
-  # variables, and overriding them would be counter-intuitive.
-  $prefix          = $mailman::params::prefix
-  # Also static directories don't need to be relocated.
-  $bin_dir         = $mailman::params::bin_dir
-  $scripts_dir     = $mailman::params::scripts_dir
-  $template_dir    = $mailman::params::template_dir
-  $messages_dir    = $mailman::params::messages_dir
-  $wrapper_dir     = $mailman::params::wrapper_dir
-  #config_dir isn't standard mailman, it only exists in red hat
-  #but it does need to be in the config file for redhat, for MTA postfix
-  $config_dir      = $data_dir
-
-  $site_pw_file    = "${data_dir}/adm.pw"
-  $creator_pw_file = "${data_dir}/creator.pw"
-  $private_archive_file_dir = "${archive_dir}/private"
-  $public_archive_file_dir  = "${archive_dir}/public"
-  $aliasfile       = "${data_dir}/aliases"
-  $aliasfiledb     = "${data_dir}/aliases.db"
-
-  $default_url_pattern = 'http://%s/mailman/'
-  $mailman_site_list = 'mailman'
-  validate_re($mailman_site_list, '[-+_.=a-z0-9]*')
-
-  # Since this variable is reused by Apache class, it needed a better name
-  # than default_url_host.
-  $default_email_host  = $smtp_hostname
-  $default_url_host    = $http_hostname
-
-  $admin_email = "${mailman_site_list}@${default_email_host}"
-  $site_pw_hash = sha1($site_pw)
 
   package { 'mailman':
     ensure  => installed,
   }
 
-  # Config file is built using concat so other classes can contribute.
-  # Must declare concat before any concat::fragment resources.
-  concat { 'mm_cfg':
-    path    => "${prefix}/Mailman/mm_cfg.py",
-    owner   => 'root',
-    group   => 'mailman',
-    mode    => '0644',
-    require => Package['mailman'],
-    notify  => Service['mailman'],
-  }
-  concat::fragment { 'mm_cfg_top':
-    content => template("${module_name}/mm_cfg.py.erb"),
-    target  => 'mm_cfg',
-    order   => '00',
-  }
+  include mailman::config
 
   # Although running genaliases seems like a helpful idea, there is a known bug
   # in Mailman prior to 2.1.15 that causes genaliases to run very slowly on

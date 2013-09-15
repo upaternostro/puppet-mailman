@@ -13,24 +13,7 @@
 #
 # To make things even more complicated, some distributions (especially RedHat)
 # have changed defaults and added new variables toward the goal of being
-# FHS compliant.
-#
-# === Parameters
-#
-# [*prefix*]
-# The most important variable in a Mailman installation is prefix, because so
-# many other variables derive from it. Traditionally the prefix would be set
-# during compilation according to where you want the files located, but modern
-# packages all use the same FHS-compliant path.
-#
-# [*exec_prefix*]
-# Since the default for exec_prefix is to be exactly the same as prefix, I think
-# this might be a legacy holdover from older versions of Mailman.
-#
-# [*var_prefix*]
-# Changing var_prefix is the fastest way to relocate all of your site-specific
-# data including mailing list configuration and archives. Typically if you are
-# changing var_prefix, you may also want to change queue_dir in the init class.
+# FHS compliant. http://wiki.list.org/pages/viewpage.action?pageId=8486957
 #
 # === Examples
 #
@@ -45,9 +28,6 @@
 # Copyright 2013 Nic Waller, unless otherwise noted.
 #
 class mailman::params {
-  # As of Mailman 2.1.5, the packages distributed by RedHat (and derivatives)
-  # change a few file locations become FHS-conformant.
-  # http://wiki.list.org/pages/viewpage.action?pageId=8486957
   case $::osfamily {
     'RedHat': {
       $prefix        = '/usr/lib/mailman'
@@ -79,7 +59,4 @@ class mailman::params {
       fail("The ${module_name} module is not supported on an ${::osfamily} based system.")
     }
   }
-
-  # I wanted to be sure that exec prefix was under prefix, but why?
-  validate_re($exec_prefix, "^${prefix}")
 }
