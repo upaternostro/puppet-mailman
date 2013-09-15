@@ -155,18 +155,6 @@ class mailman (
   #  subscribe   => Concat['mm_cfg'],
   #}
 
-  # Create files with a SHA1 hash of the site_pw (basically a skeleton key)
-  file { [$site_pw_file, $creator_pw_file]:
-    ensure  => present,
-    content => "$site_pw_hash\n",
-    owner   => 'root',
-    group   => 'mailman',
-    mode    => '0644',
-    seltype => 'mailman_data_t',
-    require => Package['mailman'],
-  }
-
-  # Need to ensure that queue_dir exists, in case a custom valid is provided.
   file { $queue_dir:
     ensure  => directory,
     owner   => 'mailman',
@@ -191,7 +179,6 @@ class mailman (
     seltype => 'mailman_lock_t',
     require => Package['mailman'],
   }
-  # If a custom value is provided for var_prefix then it needs to be created.
   file { $var_prefix:
     ensure  => directory,
     owner   => 'root',
@@ -206,6 +193,15 @@ class mailman (
     group   => 'mailman',
     mode    => '2775',
     seltype => 'mailman_data_t',
+  }
+  file { [$site_pw_file, $creator_pw_file]:
+    ensure  => present,
+    content => "$site_pw_hash\n",
+    owner   => 'root',
+    group   => 'mailman',
+    mode    => '0644',
+    seltype => 'mailman_data_t',
+    require => File[$data_dir],
   }
   file { $aliasfile:
     ensure  => present,
