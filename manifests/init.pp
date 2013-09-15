@@ -260,6 +260,11 @@ class mailman (
       mode    => '2775',
       seltype => 'mailman_data_t',
     }
+    file { "${etc_dir}/mm_cfg.py":
+      ensure  => link,
+      target  => "${prefix}/Mailman/mm_cfg.py",
+      require => File[$etc_dir],
+    }
     file { "${etc_dir}/adm.pw":
       ensure  => link,
       target  => $site_pw_file,
