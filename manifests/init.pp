@@ -55,7 +55,6 @@ class mailman (
   $default_url_pattern   = 'http://%s/mailman/',
   $virtual_host_overview = false,
   $smtp_max_rcpts        = 500,
-  $var_prefix            = $mailman::params::var_prefix,
   $list_data_dir         = $mailman::params::list_data_dir,
   $log_dir               = $mailman::params::log_dir,
   $lock_dir              = $mailman::params::lock_dir,
@@ -65,6 +64,9 @@ class mailman (
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
+  # var_prefix is only in here because it's needed by RHEL for an edge case
+  # otherwise the intention is to always be explicit with parameters
+  $var_prefix            = $mailman::params::var_prefix,
 ) inherits mailman::params {
   $langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
     'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',
