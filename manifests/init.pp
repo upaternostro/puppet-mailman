@@ -189,7 +189,7 @@ class mailman (
   }
   file { $data_dir:
     ensure  => directory,
-    owner   => 'root',
+    owner   => 'mailman', # required for postalias to work correctly
     group   => 'mailman',
     mode    => '2775',
     seltype => 'mailman_data_t',
