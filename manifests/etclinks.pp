@@ -34,6 +34,7 @@ class mailman::etclinks {
     group   => 'mailman',
     mode    => '2775',
     seltype => 'mailman_data_t',
+    require => Package['mailman'],
   }
   file { "${etc_dir}/mm_cfg.py":
     ensure  => link,
