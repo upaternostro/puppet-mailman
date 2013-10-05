@@ -69,17 +69,6 @@
 #   These parameters define where Mailman stores the data it creates.
 #   Each of this must be overridden individually.
 #
-# [*var_prefix*]
-#   var_prefix is only in here because its needed by RHEL for an edge case
-#   otherwise the intention is to always be explicit with parameters.
-#   So treat this as if it is deprecated. Maybe it will get fixed upstream.
-#   If you change var_prefix, you SHOULD change relevant subdirectories. Check
-#   params.pp to see exactly which directories need to be overridden.
-#   I would prefer that var_prefix cannot be customized, but on RedHat
-#   the "rmlist" command explicitly depends on var_prefix. (#11) So if we
-#   want rmdir to work with non-standard list data dir, then var_prefix must
-#   also be customizable.
-#
 # === Examples
 #
 #  include mailman
@@ -110,7 +99,6 @@ class mailman (
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
-  $var_prefix            = $mailman::params::var_prefix,
 ) inherits mailman::params {
   $langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
     'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',
@@ -123,6 +111,14 @@ class mailman (
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
 
+  # Don't expose var_prefix as a parameter because no functionality depends on
+  # it directly. It's only used to derive other parameters, like data_dir.
+  # CAVEAT: On RHEL, rmlist requires var_prefix to match list_data_dir.
+  $var_prefix               = $mailman::params::var_prefix
+  if ($::osfamily == 'RedHat') and ($list_data_dir != "${var_prefix}/lists") {
+    fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
+  }
+
   $site_pw_file             = "${data_dir}/adm.pw"
   $creator_pw_file          = "${data_dir}/creator.pw"
   $aliasfile                = "${data_dir}/aliases"
@@ -133,10 +129,6 @@ class mailman (
   $default_email_host       = $smtp_hostname
   $admin_email              = "${mailman_site_list}@${default_email_host}"
   $site_pw_hash             = sha1($site_pw)
-
-  if ($::osfamily == 'RedHat') and ($list_data_dir != "${var_prefix}/lists") {
-    fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
-  }
 
   package { ['httpd', 'mailman']:
     ensure  => installed,
