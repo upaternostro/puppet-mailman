@@ -8,6 +8,6 @@ description 'Puppet module for Mailman'
 project_page 'https://github.com/nicwaller/puppet-mailman'
 
 ## Add dependencies, if any:
-dependency 'puppetlabs/stdlib'
-dependency 'ripienaar/concat'
+dependency 'puppetlabs/stdlib', '>= 4.0.0'
+dependency 'puppetlabs/concat', '>= 1.0.0'
 dependency 'spiette/selinux', '>= 0.5.3'
