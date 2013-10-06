@@ -32,11 +32,18 @@ class mailman::apache {
   $error_log          = "${log_dir}/apache_error_log"
   $favicon            = "${document_root}/favicon.ico"
   $httpd_service      = 'httpd'
+  $mm_username        = $mailman::params::mm_username
+  $mm_groupname       = $mailman::params::mm_groupname
+  $http_username      = $mailman::params::http_username
+
+  package { 'httpd':
+    ensure  => installed,
+  }
 
   file { $document_root:
     ensure  => directory,
-    owner   => 'apache',
-    group   => 'apache',
+    owner   => $http_username,
+    group   => $http_username,
     mode    => '2775',
     seltype => 'httpd_sys_content_t',
     require => Package['httpd'],
@@ -52,8 +59,8 @@ class mailman::apache {
 
   file { [ $custom_log, $error_log ]:
     ensure  => present,
-    owner   => 'mailman',
-    group   => 'mailman',
+    owner   => $mm_username,
+    group   => $mm_groupname,
     mode    => '0664',
     seltype => 'httpd_log_t',
   }
@@ -62,10 +69,10 @@ class mailman::apache {
     ensure  => present,
     content => template("${module_name}/mailman_vhost.conf.erb"),
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_username,
     mode    => '0644',
     seltype => 'httpd_config_t',
-    notify  => Service[$httpd_service],
+    notify  => Service['httpd'],
   }
 
   service { $httpd_service:

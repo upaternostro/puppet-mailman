@@ -26,15 +26,18 @@
 # Copyright 2013 Nic Waller, unless otherwise noted.
 #
 class mailman::etclinks {
+  $mm_username  = $mailman::params::mm_username
+  $mm_groupname = $mailman::params::mm_groupname
+  $mm_package   = $mailman::params::mm_package
   $etc_dir = '/etc/mailman'
 
   file { $etc_dir:
     ensure  => directory,
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '2775',
     seltype => 'mailman_data_t',
-    require => Package['mailman'],
+    require => Package[$mm_package],
   }
   file { "${etc_dir}/mm_cfg.py":
     ensure  => link,

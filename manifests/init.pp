@@ -91,7 +91,7 @@ class mailman (
   $site_pw               = 'CHANGEME',
   $language              = 'en',
   $mta                   = 'Manual',
-  $smtp_hostname         = $::fqdn,
+  $smtp_hostname         = $mailman::params::smtp_hostname,
   $http_hostname         = $::hostname,
   $virtual_host_overview = false,
   $smtp_max_rcpts        = 500,
@@ -125,6 +125,12 @@ class mailman (
     fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
   }
 
+  $mm_username              = $mailman::params::mm_username
+  $mm_groupname             = $mailman::params::mm_groupname
+  $mm_service               = $mailman::params::mm_service
+  $mm_package               = $mailman::params::mm_package
+  $http_username            = $mailman::params::http_username
+
   $site_pw_file             = "${data_dir}/adm.pw"
   $creator_pw_file          = "${data_dir}/creator.pw"
   $aliasfile                = "${data_dir}/aliases"
@@ -136,7 +142,14 @@ class mailman (
   $admin_email              = "${mailman_site_list}@${default_email_host}"
   $site_pw_hash             = sha1($site_pw)
 
-  package { ['httpd', 'mailman']:
+  if $mta == 'Postfix' {
+    package { 'postfix':
+      ensure => installed,
+      before => Package[$mm_package],
+    }
+  }
+
+  package { $mm_package:
     ensure  => installed,
   }
 
@@ -158,40 +171,40 @@ class mailman (
 
   file { $queue_dir:
     ensure  => directory,
-    owner   => 'mailman',
-    group   => 'mailman',
+    owner   => $mm_username,
+    group   => $mm_groupname,
     mode    => '2770',
     seltype => 'mailman_data_t',
-    require => Package['mailman'],
+    require => Package[$mm_package],
   }
   file { $log_dir:
     ensure  => directory,
-    owner   => 'mailman',
-    group   => 'mailman',
+    owner   => $mm_username,
+    group   => $mm_groupname,
     mode    => '2770',
     seltype => 'mailman_log_t',
-    require => Package['mailman'],
+    require => Package[$mm_package],
   }
   file { $lock_dir:
     ensure  => directory,
-    owner   => 'mailman',
-    group   => 'mailman',
+    owner   => $mm_username,
+    group   => $mm_groupname,
     mode    => '2770',
     seltype => 'mailman_lock_t',
-    require => Package['mailman'],
+    require => Package[$mm_package],
   }
   file { $var_prefix:
     ensure  => directory,
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '2775',
     seltype => 'mailman_data_t',
-    require => Package['mailman'],
+    require => Package[$mm_package],
   }
   file { $data_dir:
     ensure  => directory,
-    owner   => 'mailman', # required for postalias to work correctly
-    group   => 'mailman',
+    owner   => $mm_username, # required for postalias to run correctly
+    group   => $mm_groupname,
     mode    => '2775',
     seltype => 'mailman_data_t',
   }
@@ -199,23 +212,23 @@ class mailman (
     ensure  => present,
     content => "$site_pw_hash\n",
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '0644',
     seltype => 'mailman_data_t',
     require => File[$data_dir],
   }
   file { $aliasfile:
     ensure  => present,
-    owner   => 'mailman',
-    group   => 'apache',
+    owner   => $mm_username,
+    group   => $http_username,
     mode    => '0664',
     seltype => 'mailman_data_t',
     require => File[$data_dir],
   }
   file { $aliasfiledb:
     ensure  => present,
-    owner   => 'mailman',
-    group   => 'apache',
+    owner   => $mm_username,
+    group   => $http_username,
     mode    => '0664',
     seltype => 'mailman_data_t',
     require => File[$data_dir],
@@ -223,7 +236,7 @@ class mailman (
   file { $list_data_dir:
     ensure  => directory,
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '2775',
     seltype => 'mailman_data_t',
     require => File[$var_prefix],
@@ -231,14 +244,14 @@ class mailman (
   file { $archive_dir:
     ensure  => directory,
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '2775',
     seltype => 'mailman_archive_t',
   }
   file { $private_archive_file_dir:
     ensure  => directory,
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '2771',
     seltype => 'mailman_archive_t',
     require => File[$archive_dir],
@@ -246,7 +259,7 @@ class mailman (
   file { $public_archive_file_dir:
     ensure  => directory,
     owner   => 'root',
-    group   => 'mailman',
+    group   => $mm_groupname,
     mode    => '2775',
     seltype => 'mailman_archive_t',
     require => File[$archive_dir],
@@ -272,7 +285,7 @@ class mailman (
     refreshonly => true,
   }
 
-  service { 'mailman':
+  service { $mm_service:
     ensure  => $enable_service,
     enable  => $enable_service,
     require => Exec['create_site_list'],
