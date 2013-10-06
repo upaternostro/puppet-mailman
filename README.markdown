@@ -12,8 +12,7 @@ The Mailman module installs and configures Mailman, the GNU mailing list manager
 
 ## Module Description
 The Mailman module is used to setup the Mailman mailing list manager on servers
-running either RedHat or Debian-based distributions of Linux. Only single-domain
-configurations are supported at this time.
+running either RedHat or Debian-based distributions of Linux. 
 
 Customizing this module to work with your environment is quick and easy. This
 module includes simple helper classes to configure Apache and Postfix, but you
@@ -125,6 +124,8 @@ due to the use of validate_re() which expects all input as strings.
 ## Limitations
 This module is only intended to configure Mailman 2.1.x, the mainstream stable
 branch. This is the version currently included in most Linux distributions.
+
+Only single-domain configurations are supported at this time.
 
 The helper module for Apache uses the PuppetLabs apache module, which only
 works with Apache 2.2. It is possible to make Mailman work with Apache 2.4
