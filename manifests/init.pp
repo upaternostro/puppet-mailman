@@ -69,6 +69,11 @@
 #   These parameters define where Mailman stores the data it creates.
 #   Each of this must be overridden individually.
 #
+# [*option_hash*]
+#   This is a hash of key/value pairs that will be appended to the Mailman
+#   configuration file. Use this to define parameters that aren't handled
+#   already by this module.
+#
 # === Examples
 #
 #  include mailman
@@ -99,6 +104,7 @@ class mailman (
   $queue_dir             = $mailman::params::queue_dir,
   $archive_dir           = $mailman::params::archive_dir,
   $pid_file              = $mailman::params::pid_file,
+  $option_hash           = { 'DEFAULT_MAX_NUM_RECIPIENTS' => 20 },
 ) inherits mailman::params {
   $langs = ['ar','ca','cs','da','de','en','es','et','eu','fi','fr','gl','he',
     'hr','hu','ia','it','ja','ko','lt','nl','no','pl','pt','pt_BR','ro',

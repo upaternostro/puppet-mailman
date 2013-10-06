@@ -37,6 +37,7 @@ class mailman::config inherits mailman::params {
   $queue_dir                = $mailman::queue_dir
   $virtual_host_overview    = $mailman::virtual_host_overview
   $smtp_max_rcpts           = $mailman::smtp_max_rcpts
+  $option_hash              = $mailman::option_hash
   $prefix                   = $mailman::params::prefix
   $bin_dir                  = $mailman::params::bin_dir
   $scripts_dir              = $mailman::params::scripts_dir
@@ -58,5 +59,10 @@ class mailman::config inherits mailman::params {
     content => template("${module_name}/mm_cfg.py.erb"),
     target  => 'mm_cfg',
     order   => '00',
+  }
+  concat::fragment { 'mm_cfg_extra':
+    content => template("${module_name}/mm_cfg_options.py.erb"),
+    target  => 'mm_cfg',
+    order   => '50',
   }
 }
