@@ -36,18 +36,57 @@ class mailman::apache {
   $mm_groupname       = $mailman::params::mm_groupname
   $http_username      = $mailman::params::http_username
 
-  package { 'httpd':
-    ensure  => installed,
+  if $::operatingsystem == 'Fedora' and versioncmp($::operatingsystemrelease, '18') >= 0 {
+    fail('Fedora >= 18 includes Apache 2.4 which is unsupported')
   }
 
-  file { $document_root:
-    ensure  => directory,
-    owner   => $http_username,
-    group   => $http_username,
-    mode    => '2775',
-    seltype => 'httpd_sys_content_t',
-    require => Package['httpd'],
+  class { '::apache':
+    servername    => $server_name,
+    serveradmin   => $server_admin,
+    default_mods  => false,
+    default_vhost => false,
   }
+
+  #include apache::mod::cgi
+  #include apache::mod::mime
+  #include apache::mod::mime_magic
+  #include apache::mod::autoindex
+  #include apache::mod::negotiation
+  #include apache::mod::dir
+  #include apache::mod::alias
+  #include apache::mod::setenvif
+
+  apache::vhost { $server_name:
+    #port            => '80',
+    docroot         => $document_root,
+    # TODO: doesn't apache module have these constants?
+    docroot_owner   => $http_username,
+    docroot_group   => $http_username,
+    ssl             => false,
+    #access_log_file => $custom_log,
+    #error_log_file  => $error_log,
+    logroot         => $log_dir,
+    ip_based        => true, # dedicate apache to mailman
+    custom_fragment => "ScriptAlias /mailman/ ${mailman_cgi_dir}/",
+    directories     => [
+      {
+        path            => $mailman_cgi_dir,
+        allow_override  => ['None'],
+        options         => ['ExecCGI'],
+        order           => 'Allow,Deny',
+        allow           => 'from all'
+      },
+      {
+        path            => $public_archive_dir,
+        allow_override  => ['None'],
+        options         => ['ExecCGI'],
+        order           => 'Allow,Deny',
+        custom_fragment => 'AddDefaultCharset Off'
+      }        
+    ],
+    
+  }
+
   # Mailman does include a favicon in the HTML META section, but some silly
   # browsers still look for favicon.ico. Create a blank one to reduce 404's.
   exec { 'ensure_favicon':
@@ -55,29 +94,5 @@ class mailman::apache {
     path    => '/bin',
     creates => $favicon,
     require => File[$document_root],
-  }
-
-  file { [ $custom_log, $error_log ]:
-    ensure  => present,
-    owner   => $mm_username,
-    group   => $mm_groupname,
-    mode    => '0664',
-    seltype => 'httpd_log_t',
-  }
-
-  file { $vhost_file:
-    ensure  => present,
-    content => template("${module_name}/mailman_vhost.conf.erb"),
-    owner   => 'root',
-    group   => $mm_username,
-    mode    => '0644',
-    seltype => 'httpd_config_t',
-    notify  => Service['httpd'],
-  }
-
-  service { $httpd_service:
-    ensure    => running,
-    enable    => true,
-    require   => File[$document_root],
   }
 }
