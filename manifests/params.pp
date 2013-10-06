@@ -78,19 +78,15 @@ class mailman::params {
       $list_data_dir = "${var_prefix}/lists"
       $log_dir       = '/var/log/mailman'
       $lock_dir      = '/var/lock/mailman'
-      $config_dir    = '/etc/mailman' # Unique to RedHat packages
+      #$config_dir    = '/etc/mailman'
       $data_dir      = "${var_prefix}/data"
-      $pid_dir       = '/var/run/mailman' # Unique to RedHat packages
+      $pid_dir       = '/var/run/mailman'
       $spam_dir      = "${var_prefix}/spam"
       $wrapper_dir   = "${exec_prefix}/mail"
       $bin_dir       = "${prefix}/bin"
       $scripts_dir   = "${prefix}/scripts"
-      if ($::operatingsystem == 'Fedora') and ($::operatingsystemversion == 19) {
-        $template_dir  = '/etc/mailman/templates'
-      } else {
-        $template_dir  = "${prefix}/templates"
-      }
-      $messages_dir  = "${prefix}/messages"
+      $template_dir  = '/etc/mailman' # unique to Debian
+      $messages_dir  = "${var_prefix}/messages"
       # archive_dir is not a real Mailman param, it's just useful in this module
       $archive_dir   = "${var_prefix}/archives"
       $queue_dir     = '/var/spool/mailman'
