@@ -21,7 +21,9 @@
 #
 class mailman::apache {
   $prefix             = $mailman::params::prefix
-  $log_dir            = $mailman::log_dir
+  # have to keep http logs and mailman logs separate because of selinux
+  # TODO: create symlinks from mm logdir to http logdir
+  $log_dir            = $::apache::params::logroot
   $public_archive_dir = $mailman::public_archive_file_dir
   $server_name        = $mailman::http_hostname
   $document_root      = '/var/www/html/mailman'
