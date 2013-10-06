@@ -12,94 +12,102 @@ The Mailman module installs and configures Mailman, the GNU mailing list manager
 
 ## Module Description
 The Mailman module is used to setup the Mailman mailing list manager on servers
-running a RedHat-based distribution of Linux, such as CentOS or Scientific.
+running either RedHat or Debian-based distributions of Linux. Only single-domain
+configurations are supported at this time.
 
-Simplicity across a variety of configurations is the goal for this module.
-* Reasonable defaults make it easier to get started.
-* Full support for SELinux in "enforcing" mode when using NFS mounts.
-* Extra parameter validation protects against invalid configuration.
+Customizing this module to work with your environment is quick and easy. This
+module includes simple helper classes to configure Apache and Postfix, but you
+can skip either of them if you need a more customized environment.
 
-This module is divided into logical parts that make it easy to separate the
-Mailman web frontend from the MTA backend.
+If your server will be dedicated to running only Mailman, you can use the
+Apache helper class to get started quickly. Or if you want to use Apache
+for hosting other sites on the same server, you can skip the helper class so
+that it won't interfere.
 
-Main focus is on single-domain setups, no options for virtual domains included.
+If you want to share Mailman data between two or more servers, this module
+provides parameters that make it easy to customize directory paths. And the
+optional SELinux module configures SELinux policy so that Mailman is permitted
+to read and write files mounted with NFS, even in Enforcing mode.
 
-Hiera automatic parameter lookup is fully supported thanks to the extensive use
-of parameterized classes.
-
-This modules simplifies a commonly requested feature, which is the ability to
-change the location of VAR_PREFIX in mm_cfg.py. For more on that discussion see here:
-* https://bugs.launchpad.net/mailman/+bug/925502
-* https://bugzilla.redhat.com/show_bug.cgi?id=786822
+By providing parameterized classes, full support for Hiera parameter binding
+in Puppet >= 3.0 is included. This module can be fully configured from Hiera.
 
 ## Quick Start
-I just want Mailman to work. What's the minimum I need?
+I just want a dedicated Mailman server. First, install dependencies.
+
+    $ sudo puppet module install puppetlabs/apache
+    $ sudo puppet module install thias/postfix
+
+Then declare the Mailman classes in one of your node statements.
 
     class { 'mailman':
       enable_service => true,
       site_pw        => 'CHANGEME',
       mta            => 'Postfix',
+      smtp_hostname  => 'mail.contoso.com',
+      http_hostname  => 'mail.contoso.com',
     }
     include mailman::apache
+    include mailman::postfix
 
-This assumes that Postfix is already installed, and that you will manually
-hack the `main.cf` Postfix configuration file to add appropriate alias_maps.
-
-For web integration, this assumes that a stock installation of Apache is
-available, and that you will be using the server hostname in the URL.
+CAUTION: Do not run this on a server where Apache or Postfix are already setup.
+This will remove any configuration files that aren't necessary for Mailman.
 
 ## Usage
 
 ### Change location of Mailman data files
-This module allows you to fully customize where your Mailman data is stored.
-However, only a few directories are ususally worth moving.
+Customizing the Mailman directories is easy. For example, if you had already
+mounted `/srv/mailman` over NFS, this is how to relocate the directories.
 
     class { 'mailman':
-      data_dir      => '/srv/mailman/data'
-      list_data_dir => '/srv/mailman/lists'
-      queue_dir     => '/srv/mailman/spool'
-      log_dir       => '/srv/mailman/logs'
+      list_data_dir => '/srv/mailman/lists',
+      log_dir       => '/srv/mailman/logs',
+      data_dir      => '/srv/mailman/data',
+      queue_dir     => '/srv/mailman/spool',
+      archive_dir   => '/srv/mailman/archives',
     }
 
-This assumes that `/srv/mailman/` already exists as a directory.
+CAUTION: If you change Mailman's directories after lists have been created, you
+will need to manually move the list data to the new directories yourself.
 
-### Customize default options for new lists
-If you want to customize the behaviour of newly created mailing lists, you
-can change the default options for them. This only affects lists created
-in the future, not lists that already exist.
-
-    class { 'mailman::options':
-      default_send_reminders   => false,
-      default_archive_private  => 1,
-      default_max_message_size => 500,
-    }
-
-### Frontend on different server
-If you want to split up your Mailman environment so that the web frontend runs
-on one server, and the queues run on a different server, you need to ensure
-that the qrunners are only running on one server.
-
-They need to use shared storage, such as NFS.
+### Web frontend on separate server
+If you want to put the web frontend on a separate server, you can put Mailman
+data on an NFS share. You *MUST* ensure that Mailman's qrunners are only active
+on one server at a time to avoid data corruption. Use the `enable_service`
+parameter to specify which server has the qrunners.
 
     node 'mail.contoso.com' {
       class { 'mailman':
         enable_service => true,
         mta            => 'Postfix',
-        data_dir       => '/nfs/mailman/data'
-        list_data_dir  => '/nfs/mailman/lists'
-        queue_dir      => '/nfs/mailman/spool'
-        log_dir        => '/nfs/mailman/logs'
+
+        list_data_dir  => '/srv/mailman/lists',
+        log_dir        => '/srv/mailman/logs',
+        data_dir       => '/srv/mailman/data',
+        queue_dir      => '/srv/mailman/spool',
+        archive_dir    => '/srv/mailman/archives',
       }
+      include mailman::postfix
     }
     node 'frontend.contoso.com' {
       class { 'mailman':
         enable_service => false,
-        data_dir       => '/nfs/mailman/data'
-        list_data_dir  => '/nfs/mailman/lists'
-        queue_dir      => '/nfs/mailman/spool'
-        log_dir        => '/nfs/mailman/logs'
+
+        list_data_dir  => '/srv/mailman/lists',
+        log_dir        => '/srv/mailman/logs',
+        data_dir       => '/srv/mailman/data',
+        queue_dir      => '/srv/mailman/spool',
+        archive_dir    => '/srv/mailman/archives',
       }
       include mailman::apache
+    }
+
+### Custom options
+To customize additional options that aren't already included in this module,
+use the `option_hash` parameter to define your custom options.
+
+    class { 'mailman':
+      option_hash   => { 'DEFAULT_MAX_NUM_RECIPIENTS' => 20 },
     }
 
 ### Configuration using Hiera
@@ -115,11 +123,21 @@ Note that all values in Hiera must be quoted, even integer numbers. This is
 due to the use of validate_re() which expects all input as strings.
 
 ## Limitations
+This module is only intended to configure Mailman 2.1.x, the mainstream stable
+branch. This is the version currently included in most Linux distributions.
+
+The helper module for Apache uses the PuppetLabs apache module, which only
+works with Apache 2.2. It is possible to make Mailman work with Apache 2.4
+but you need to configure Apache some other way.
+
 This module has been built on and tested against these Puppet versions:
 * 3.3.0
 * 3.2.4
 * 3.1.1
 
-This module has been tested on the following distributions:
-* Scientific Linux release 6.4
-* Fedora 19
+Supported distributions:
+* Scientific Linux 6.4
+* Ubuntu Server 12.04 LTS
+
+Unsupported distributions:
+* Fedora 18/19 (Apache 2.4)
