@@ -11,3 +11,6 @@ project_page 'https://github.com/nicwaller/puppet-mailman'
 dependency 'puppetlabs/stdlib', '>= 4.0.0'
 dependency 'puppetlabs/concat', '>= 1.0.0'
 dependency 'spiette/selinux', '>= 0.5.3'
+
+# This is an optional dep. Only used by apache glue class.
+#dependency 'puppetlabs/apache', '>= 0.9.0'
