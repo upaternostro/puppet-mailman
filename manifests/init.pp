@@ -141,13 +141,6 @@ class mailman (
   $admin_email              = "${mailman_site_list}@${default_email_host}"
   $site_pw_hash             = sha1($site_pw)
 
-  if $mta == 'Postfix' {
-    package { 'postfix':
-      ensure => installed,
-      before => Package[$mm_package],
-    }
-  }
-
   package { $mm_package:
     ensure  => installed,
   }
