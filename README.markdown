@@ -49,8 +49,10 @@ Then declare the Mailman classes in one of your node statements.
     include mailman::apache
     include mailman::postfix
 
-CAUTION: Do not run this on a server where Apache or Postfix are already setup.
-This will remove any configuration files that aren't necessary for Mailman.
+*CAUTION!* Only use the Apache and Postfix helper classes if your server will
+only be hosting Mailman and nothing else. If you want to use Apache or Postfix
+for other purposes on the same server, they need to be configured separately.
+These helper classes will remove any non-Mailman configuration.
 
 ## Usage
 
@@ -127,7 +129,7 @@ branch. This is the version currently included in most Linux distributions.
 
 Only single-domain configurations are supported at this time.
 
-The helper module for Apache uses the PuppetLabs apache module, which only
+The helper class for Apache uses the PuppetLabs apache module, which only
 works with Apache 2.2. It is possible to make Mailman work with Apache 2.4
 but you need to configure Apache some other way.
 
