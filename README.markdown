@@ -77,12 +77,6 @@ data on an NFS share. You *MUST* ensure that Mailman's qrunners are only active
 on one server at a time to avoid data corruption. Use the `enable_service`
 parameter to specify which server has the qrunners.
 
-At a minimum, Mailman requires these directories to be on shared storage.
-* list_data_dir
-* data_dir
-* queue_dir
-* archive_dir
-
     node 'mail.contoso.com' {
       class { 'mailman':
         enable_service => true,
@@ -108,6 +102,13 @@ At a minimum, Mailman requires these directories to be on shared storage.
       }
       include mailman::apache
     }
+
+At a minimum, Mailman requires these directories to be on shared storage.
+
+* list_data_dir
+* data_dir
+* queue_dir
+* archive_dir
 
 ### Custom options
 To customize additional options that aren't already included in this module,
