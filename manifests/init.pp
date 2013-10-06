@@ -129,7 +129,6 @@ class mailman (
   $mm_groupname             = $mailman::params::mm_groupname
   $mm_service               = $mailman::params::mm_service
   $mm_package               = $mailman::params::mm_package
-  $http_username            = $mailman::params::http_username
 
   $site_pw_file             = "${data_dir}/adm.pw"
   $creator_pw_file          = "${data_dir}/creator.pw"
@@ -220,7 +219,6 @@ class mailman (
   file { $aliasfile:
     ensure  => present,
     owner   => $mm_username,
-    group   => $http_username,
     mode    => '0664',
     seltype => 'mailman_data_t',
     require => File[$data_dir],
@@ -228,7 +226,6 @@ class mailman (
   file { $aliasfiledb:
     ensure  => present,
     owner   => $mm_username,
-    group   => $http_username,
     mode    => '0664',
     seltype => 'mailman_data_t',
     require => File[$data_dir],

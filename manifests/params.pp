@@ -34,8 +34,6 @@ class mailman::params {
     'RedHat': {
       $mm_username   = 'mailman'
       $mm_groupname  = 'mailman'
-      # TODO eliminate this with generic puppet apache module
-      $http_username = 'apache'
       $smtp_hostname = $::fqdn
       $prefix        = '/usr/lib/mailman'
       $exec_prefix   = $prefix
@@ -67,7 +65,6 @@ class mailman::params {
     'Debian': {
       $mm_username   = 'list'
       $mm_groupname  = 'list'
-      $http_username = 'www-data'
       # Mailman requires two more DNS labels but Debian systems
       # only use single label "localhost" name.
       $smtp_hostname = "mail.${::hostname}"
