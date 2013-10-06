@@ -53,6 +53,11 @@ class mailman::apache {
 
   include apache::mod::alias
 
+  $cf1 = "ScriptAlias /mailman ${mailman_cgi_dir}/\n"
+  $cf2 = "RedirectMatch ^/mailman[/]*$ http://${server_name}/mailman/listinfo\n"
+  $cf3 = "RedirectMatch ^/?$ http://${server_name}/mailman/listinfo\n"
+  $cf_all = "${cf1}\n${cf2}\n${cf3}\n"
+
   apache::vhost { $server_name:
     docroot         => $document_root,
     # TODO: doesn't apache module have these constants?
@@ -63,11 +68,7 @@ class mailman::apache {
     error_log_file  => $error_log_name,
     logroot         => $log_dir,
     ip_based        => true, # dedicate apache to mailman
-    custom_fragment => [
-      "ScriptAlias /mailman ${mailman_cgi_dir}/\n",
-      "RedirectMatch ^/mailman[/]*$ http://${server_name}/mailman/listinfo\n",
-      "RedirectMatch ^/?$ http://${server_name}/mailman/listinfo\n",
-    ],
+    custom_fragment => $cf_all,
     aliases         => [ { alias => '/pipermail', path => $public_archive_dir } ],
     directories     => [
       {
