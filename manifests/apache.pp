@@ -28,46 +28,47 @@ class mailman::apache {
   $document_root      = '/var/www/html/mailman'
   $mailman_cgi_dir    = "${prefix}/cgi-bin"
   $mailman_icons_dir  = "${prefix}/icons"
-  $custom_log         = "${log_dir}/apache_access_log"
-  $error_log          = "${log_dir}/apache_error_log"
+  $custom_log_name    = 'apache_access_log'
+  $error_log_name     = 'apache_error_log'
+  $custom_log         = "${log_dir}/${custom_log_name}"
+  $error_log          = "${log_dir}/${error_log_name}"
   $favicon            = "${document_root}/favicon.ico"
   $httpd_service      = 'httpd'
   $mm_username        = $mailman::params::mm_username
   $mm_groupname       = $mailman::params::mm_groupname
   $http_username      = $mailman::params::http_username
 
-  if $::operatingsystem == 'Fedora' and versioncmp($::operatingsystemrelease, '18') >= 0 {
-    fail('Fedora >= 18 includes Apache 2.4 which is unsupported')
+  if versioncmp($::apacheversion, '2.4.0') >= 0 {
+    fail('Apache 2.4 is not supported by this Puppet module.')
   }
 
   class { '::apache':
     servername    => $server_name,
     serveradmin   => $server_admin,
-    default_mods  => false,
+    default_mods  => true,
     default_vhost => false,
+    logroot => '/var/log/httpd',
   }
+  apache::listen { '80': }
 
-  #include apache::mod::cgi
-  #include apache::mod::mime
-  #include apache::mod::mime_magic
-  #include apache::mod::autoindex
-  #include apache::mod::negotiation
-  #include apache::mod::dir
-  #include apache::mod::alias
-  #include apache::mod::setenvif
+  include apache::mod::alias
 
   apache::vhost { $server_name:
-    #port            => '80',
     docroot         => $document_root,
     # TODO: doesn't apache module have these constants?
     docroot_owner   => $http_username,
     docroot_group   => $http_username,
     ssl             => false,
-    #access_log_file => $custom_log,
-    #error_log_file  => $error_log,
+    access_log_file => $custom_log_name,
+    error_log_file  => $error_log_name,
     logroot         => $log_dir,
     ip_based        => true, # dedicate apache to mailman
-    custom_fragment => "ScriptAlias /mailman/ ${mailman_cgi_dir}/",
+    custom_fragment => [
+      "ScriptAlias /mailman ${mailman_cgi_dir}/\n",
+      "RedirectMatch ^/mailman[/]*$ http://${server_name}/mailman/listinfo\n",
+      "RedirectMatch ^/?$ http://${server_name}/mailman/listinfo\n",
+    ],
+    aliases         => [ { alias => '/pipermail', path => $public_archive_dir } ],
     directories     => [
       {
         path            => $mailman_cgi_dir,
@@ -79,12 +80,20 @@ class mailman::apache {
       {
         path            => $public_archive_dir,
         allow_override  => ['None'],
-        options         => ['ExecCGI'],
+        options         => ['Indexes', 'MultiViews', 'FollowSymLinks'],
         order           => 'Allow,Deny',
         custom_fragment => 'AddDefaultCharset Off'
       }        
     ],
     
+  }
+
+  file { [ $custom_log, $error_log ]:
+    ensure  => present,
+    owner   => $http_username,
+    group   => $http_groupname,
+    mode    => '0664',
+    seltype => 'httpd_log_t',
   }
 
   # Mailman does include a favicon in the HTML META section, but some silly
