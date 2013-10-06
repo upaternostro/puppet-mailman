@@ -148,6 +148,7 @@ This module has been built on and tested against these Puppet versions:
 Supported distributions:
 * Scientific Linux 6.4
 * Ubuntu Server 12.04 LTS
+* Fedora 17
 
 Unsupported distributions:
 * Fedora 18/19 (Apache 2.4)
