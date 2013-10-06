@@ -144,14 +144,17 @@ class mailman (
 
   # Although running genaliases seems like a helpful idea, there is a known bug
   # in Mailman prior to 2.1.15 that causes genaliases to run very slowly on
-  # systems with large numbers of lists. I'm leaving this commented out for now,
-  # and might bring it back later as an option, or dependent on Mailman version.
-  #exec { 'genaliases':
-  #  command     => 'genaliases',
-  #  path        => $bin_dir,
-  #  refreshonly => true,
-  #  subscribe   => Concat['mm_cfg'],
-  #}
+  # systems with large numbers of lists. Only enable for new Mailman versions.
+  if versioncmp($::mailmanversion, '2.1.15') > 0 {
+    exec { 'genaliases':
+      command     => 'genaliases',
+      path        => $bin_dir,
+      refreshonly => true,
+      subscribe   => Concat['mm_cfg'],
+    }
+  } else {
+    warning('Be careful using genaliases on Mailman < 2.1.15')
+  }
 
   file { $queue_dir:
     ensure  => directory,
