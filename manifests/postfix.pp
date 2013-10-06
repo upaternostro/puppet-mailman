@@ -31,6 +31,7 @@ class mailman::postfix {
   # TODO FIXME ensure this is not an open relay
 
   class { '::postfix::server':
+    inet_interfaces      => 'all',
     myhostname           => $mailman::smtp_hostname,
     mydomain             => $mailman::smtp_hostname,
     alias_maps           => "hash:${mailman::aliasfile}",
