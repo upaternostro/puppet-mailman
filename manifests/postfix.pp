@@ -45,4 +45,8 @@ class mailman::postfix {
 
   # Ensure that Postfix is installed before Mailman
   Package['postfix'] -> Package[$mailman::mm_package]
+
+  # TODO: remove this hack once it is fixed upstream
+  Package['postfix'] -> File['/etc/postfix/master.cf']
+  Package['postfix'] -> File['/etc/postfix/main.cf']
 }
