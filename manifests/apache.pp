@@ -2,10 +2,10 @@
 #
 # This is a helper class for Apache that provides a bare minimum configuration.
 # It is intended to help you get started quickly, but most people will probably
-# outgrow this basic setup and need to configure Apache with a different module.
+# outgrow this setup and need to configure Apache with a different module.
 #
-# Apache is an important part of Mailman as it provides for web-based moderation,
-# list management, and viewing of list archives.
+# Apache is an important part of Mailman as it provides for web-based
+# moderation, list management, and viewing of list archives.
 #
 # === Examples
 #
@@ -44,7 +44,7 @@ class mailman::apache {
     serveradmin   => "mailman@${mailman::smtp_hostname}",
     default_mods  => true,
     default_vhost => false,
-    logroot => '/var/log/httpd',
+    logroot       => '/var/log/httpd',
   }
   apache::listen { '80': }
 
@@ -62,7 +62,6 @@ class mailman::apache {
 
   apache::vhost { $server_name:
     docroot         => $document_root,
-    # TODO: doesn't apache module have these constants?
     docroot_owner   => $http_username,
     docroot_group   => $http_groupname,
     ssl             => false,
@@ -71,7 +70,10 @@ class mailman::apache {
     logroot         => $log_dir,
     ip_based        => true, # dedicate apache to mailman
     custom_fragment => $cf_all,
-    aliases         => [ { alias => '/pipermail', path => $public_archive_dir } ],
+    aliases         => [ {
+      alias => '/pipermail',
+      path  => $public_archive_dir
+    } ],
     directories     => [
       {
         path            => $mailman_cgi_dir,
@@ -86,7 +88,7 @@ class mailman::apache {
         options         => ['Indexes', 'MultiViews', 'FollowSymLinks'],
         order           => 'Allow,Deny',
         custom_fragment => 'AddDefaultCharset Off'
-      }        
+      }
     ],
   }
 

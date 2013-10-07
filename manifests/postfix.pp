@@ -2,13 +2,13 @@
 #
 # This is a helper class for Postfix that provides a bare minimum configuration.
 # It is intended to help you get started quickly, but most people will probably
-# outgrow this basic setup and need to configure Postfix with a different module.
+# outgrow this setup and need to configure Postfix with a different module.
 #
 # Postfix is a critical part of Mailman as it enables messages to be sent and
 # received.
 #
-# If you're seeing strange results for myhostname or mydomain, check your settings
-# in /etc/resolv.conf, especially on RedHat systems.
+# If you're seeing strange results for myhostname or mydomain, check your
+# settings in /etc/resolv.conf, especially on RedHat systems.
 #
 # === Examples
 #
@@ -25,7 +25,7 @@
 class mailman::postfix {
 
   if $mailman::mta != 'Postfix' {
-    fail("Must set MTA=Postfix if using Postfix helper class")
+    fail('Must set MTA=Postfix if using Postfix helper class')
   }
 
   # TODO FIXME ensure this is not an open relay

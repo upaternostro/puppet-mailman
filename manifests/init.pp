@@ -47,7 +47,7 @@
 #   Mailman insists that the mail domain MUST have 2 or more parts.
 #
 # [*http_hostname*]
-#   This is the hostname that people use in a web browser to access the frontend.
+#   This is the hostname used in a web browser to access the frontend.
 #   This commonly matches smtp_hostname but that isn't a requirement.
 #   A single-label DNS name is permitted here (eg. "localhost").
 #
@@ -65,7 +65,8 @@
 #   have lists with a large number of invalid recipients in a single domain,
 #   reducing this number is very likely to help with reliable delivery.
 #
-# [*list_data_dir,log_dir,lock_dir,data_dir,pid_dir,spam_dir,queue_dir,archive_dir,pid_file*]
+# [*list_data_dir, log_dir, lock_dir, data_dir, pid_dir, spam_dir, queue_dir
+#   archive_dir,pid_file*]
 #   These parameters define where Mailman stores the data it creates.
 #   Each of this must be overridden individually.
 #
@@ -112,8 +113,8 @@ class mailman (
   validate_bool($enable_service)
   validate_re($language, $langs)
   validate_re($mta, ['Manual', 'Postfix'])
-  validate_re($smtp_hostname, "^[-a-zA-Z0-9]+\.[-a-zA-Z0-9\.]+$")
-  validate_re($http_hostname, "^[-a-zA-Z0-9\.]+$")
+  validate_re($smtp_hostname, '^[-a-zA-Z0-9]+\.[-a-zA-Z0-9\.]+$')
+  validate_re($http_hostname, '^[-a-zA-Z0-9\.]+$')
   validate_bool($virtual_host_overview)
   validate_re($smtp_max_rcpts, '[0-9]*')
 
@@ -122,7 +123,7 @@ class mailman (
   # CAVEAT: On RHEL, rmlist requires var_prefix to match list_data_dir.
   $var_prefix               = $mailman::params::var_prefix
   if ($::osfamily == 'RedHat') and ($list_data_dir != "${var_prefix}/lists") {
-    fail("On RHEL list_data_dir must be <VAR_PREFIX>/lists, else rmlist will fail")
+    fail('rmlist requires that var_prefix is parent of list_data_dir on RHEL')
   }
 
   $mm_username              = $mailman::params::mm_username
@@ -153,7 +154,7 @@ class mailman (
   if versioncmp($::mailmanversion, '2.1.15') > 0 {
     exec { 'genaliases':
       command     => 'genaliases',
-      path        => $bin_dir,
+      path        => $mailman::params::bin_dir,
       refreshonly => true,
       subscribe   => File['mm_cfg'],
     }
@@ -202,7 +203,7 @@ class mailman (
   }
   file { [$site_pw_file, $creator_pw_file]:
     ensure  => present,
-    content => "$site_pw_hash\n",
+    content => "${site_pw_hash}\n",
     owner   => 'root',
     group   => $mm_groupname,
     mode    => '0644',
@@ -264,14 +265,14 @@ class mailman (
   # password is immediately reset.
   exec { 'create_site_list':
     command => "newlist -q '${mailman_site_list}' '${admin_email}' 'CHANGEME'",
-    path    => $bin_dir,
+    path    => $mailman::params::bin_dir,
     creates => "${list_data_dir}/${mailman_site_list}/config.pck",
     require => [ File[$list_data_dir], File['mm_cfg'] ],
     notify  => Exec['change_site_list_pw'],
   }
   exec { 'change_site_list_pw':
     command     => "change_pw --quiet -l '${mailman_site_list}'",
-    path        => $bin_dir,
+    path        => $mailman::params::bin_dir,
     refreshonly => true,
   }
 
