@@ -49,24 +49,13 @@ class mailman::config inherits mailman::params {
   $mm_username              = $mailman::params::mm_username
   $mm_groupname             = $mailman::params::mm_groupname
 
-  # Config file is built using concat so other classes can contribute.
-  # Must declare concat before any concat::fragment resources.
-  concat { 'mm_cfg':
+  file { 'mm_cfg':
     path    => "${prefix}/Mailman/mm_cfg.py",
+    content => template("${module_name}/mm_cfg.py.erb"),
     owner   => 'root',
     group   => $mm_groupname,
     mode    => '0644',
     require => Package[$mm_package],
     notify  => Service[$mm_service],
-  }
-  concat::fragment { 'mm_cfg_top':
-    content => template("${module_name}/mm_cfg.py.erb"),
-    target  => 'mm_cfg',
-    order   => '00',
-  }
-  concat::fragment { 'mm_cfg_extra':
-    content => template("${module_name}/mm_cfg_options.py.erb"),
-    target  => 'mm_cfg',
-    order   => '50',
   }
 }

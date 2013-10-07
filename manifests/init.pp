@@ -155,7 +155,7 @@ class mailman (
       command     => 'genaliases',
       path        => $bin_dir,
       refreshonly => true,
-      subscribe   => Concat['mm_cfg'],
+      subscribe   => File['mm_cfg'],
     }
   } else {
     warning('Be careful using genaliases on Mailman < 2.1.15')
@@ -266,7 +266,7 @@ class mailman (
     command => "newlist -q '${mailman_site_list}' '${admin_email}' 'CHANGEME'",
     path    => $bin_dir,
     creates => "${list_data_dir}/${mailman_site_list}/config.pck",
-    require => [ File[$list_data_dir], Concat['mm_cfg'] ],
+    require => [ File[$list_data_dir], File['mm_cfg'] ],
     notify  => Exec['change_site_list_pw'],
   }
   exec { 'change_site_list_pw':

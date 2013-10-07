@@ -146,3 +146,7 @@ MAILDIR_DIR     = '<%= @queue_dir %>/maildir'
 VIRTUAL_HOST_OVERVIEW = <%= @virtual_host_overview %>
 
 SMTP_MAX_RCPTS = <%= @smtp_max_rcpts %>
+
+<% option_hash.each_pair do |key, value| -%>
+<%= key %> = <%= value %>
+<% end -%>
