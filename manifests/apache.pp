@@ -46,7 +46,6 @@ class mailman::apache {
     default_vhost => false,
     logroot       => '/var/log/httpd',
   }
-  apache::listen { '80': }
 
   # TODO This is parse-order dependent. Can that be avoided?
   $http_username      = $::apache::params::user
@@ -61,6 +60,8 @@ class mailman::apache {
   $cf_all = "${cf1}\n${cf2}\n${cf3}\n"
 
   apache::vhost { $server_name:
+    ip              => '*',
+    port            => 80,
     docroot         => $document_root,
     docroot_owner   => $http_username,
     docroot_group   => $http_groupname,
