@@ -16,7 +16,7 @@ require {
 
 allow mailman_cgi_t nfs_t:dir { write search read remove_name open add_name create getattr };
 allow mailman_cgi_t nfs_t:file { rename create unlink link open read write append ioctl lock };
-allow mailman_cgi_t nfs_t:lnk_file { create };
+allow mailman_cgi_t nfs_t:lnk_file { create unlink };
 
 #============= mailman_mail_t ==============
 # This includes mailmanctl and qrunner
@@ -29,5 +29,5 @@ allow mailman_mail_t nfs_t:file { rename create unlink link setattr };
 
 allow mailman_queue_t nfs_t:dir { search read create write getattr remove_name open add_name };
 allow mailman_queue_t nfs_t:file { rename create unlink link setattr };
-allow mailman_queue_t nfs_t:lnk_file create;
+allow mailman_queue_t nfs_t:lnk_file { create unlink };
 
