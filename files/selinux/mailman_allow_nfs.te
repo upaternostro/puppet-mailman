@@ -1,4 +1,4 @@
-module mailman_allow_nfs 1.2.6;
+module mailman_allow_nfs 1.2.7;
 
 require {
   type mailman_cgi_t;
